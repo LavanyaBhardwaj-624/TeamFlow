@@ -1,0 +1,132 @@
+// use prisma-8
+
+enum WorkspaceRole {
+  ADMIN
+  MEMBER
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model User {
+  id           Uuid           @id @default(uuid())
+  email        String         @unique
+  name         String?
+  passwordHash String
+  title        String
+  ImageLink    String
+  createdAt    Timestamptz(6) @default(now())
+  
+
+  workspacesCreated Workspace[]           @relation("WorkspaceCreator")
+  memberships       WorkspaceMember[]
+  invitationsSent   WorkspaceInvitation[] @relation("InvitationSender")
+  tasksCreated      Task[]                @relation("TaskCreator")
+  taskComments      TaskComment[]
+  taskAssignments   TaskAssignee[]
+}
+
+model Workspace {
+  id          Uuid           @id @default(uuid())
+  name        String
+  description String?
+  createdBy   Uuid
+  createdAt   Timestamptz(6) @default(now())
+
+  creator     User                  @relation("WorkspaceCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  members     WorkspaceMember[]
+  invitations WorkspaceInvitation[]
+  tasks       Task[]
+
+  @@index([createdBy])
+}
+
+model WorkspaceMember {
+  id          Uuid           @id @default(uuid())
+  workspaceId Uuid
+  userId      Uuid
+  role        WorkspaceRole  @default(MEMBER)
+  joinedAt    Timestamptz(6) @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+}
+
+model WorkspaceInvitation {
+  id          Uuid            @id @default(uuid())
+  workspaceId Uuid
+  invitedBy   Uuid
+  email       String
+  role        WorkspaceRole   @default(MEMBER)
+  tokenHash   String          @unique
+  expiresAt   Timestamptz(6)
+  acceptedAt  Timestamptz(6)?
+  createdAt   Timestamptz(6)  @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  inviter   User      @relation("InvitationSender", fields: [invitedBy], references: [id], onDelete: Restrict)
+
+  @@index([workspaceId, email])
+}
+
+model Task {
+  id          Uuid           @id @default(uuid())
+  workspaceId Uuid
+  createdBy   Uuid
+  title       String
+  description String?
+  status      TaskStatus     @default(TODO)
+  priority    TaskPriority   @default(MEDIUM)
+  dueAt       Timestamptz(6)?
+  createdAt   Timestamptz(6) @default(now())
+  updatedAt   temporal.updatedAt()
+
+  workspace Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creator   User           @relation("TaskCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  comments  TaskComment[]
+  assignees TaskAssignee[]
+
+  @@index([workspaceId, status])
+  @@index([createdBy])
+  @@index([dueAt])
+}
+
+model TaskComment {
+  id        Uuid           @id @default(uuid())
+  taskId    Uuid
+  userId    Uuid
+  content   String
+  createdAt Timestamptz(6) @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([taskId, createdAt])
+  @@index([userId])
+}
+
+model TaskAssignee {
+  taskId     Uuid
+  userId     Uuid
+  assignedAt Timestamptz(6) @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, userId])
+  @@index([userId])
+}

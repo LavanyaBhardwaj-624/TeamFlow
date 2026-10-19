@@ -1,0 +1,100 @@
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/600.css';
+@import '@fontsource/space-grotesk/700.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg: #FAFAF9;
+    --color-surface: #FFFFFF;
+    --color-surface-secondary: #F4F4F3;
+    --color-surface-hover: #ECECEB;
+    --color-ink: #14171C;
+    --color-muted: #5B616B;
+    --color-subtle: #88909E;
+    --color-line: #E4E5E2;
+    --color-line-subtle: #EEEEEC;
+    --color-brand: #0B6E4F;
+    --color-brand-hover: #08553D;
+    --color-brand-surface: #E8F5EF;
+    --color-brand-foreground: #FFFFFF;
+  }
+
+  .dark {
+    --color-bg: #0F1115;
+    --color-surface: #171A20;
+    --color-surface-secondary: #1F232B;
+    --color-surface-hover: #262B35;
+    --color-ink: #ECEEF1;
+    --color-muted: #9AA1AC;
+    --color-subtle: #68707E;
+    --color-line: #262A32;
+    --color-line-subtle: #1C2027;
+    --color-brand: #10B981;
+    --color-brand-hover: #059669;
+    --color-brand-surface: #092B21;
+    --color-brand-foreground: #0A1C16;
+  }
+
+  * {
+    @apply border-line;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  /* Accessible focus indicators */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Custom scrollbars matching theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
