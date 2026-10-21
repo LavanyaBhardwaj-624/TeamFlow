@@ -30,7 +30,7 @@ export interface BackendAuthResponse {
   success: boolean;
   status: number;
   message: string;
-  data: BackendAuthData;
+  data?: BackendAuthData;
 }
 
 function mapBackendAuthData(data: BackendAuthData): AuthSession {
@@ -67,11 +67,11 @@ class AuthService {
   async login(credentials: LoginCredentials): Promise<ApiResponse<AuthSession>> {
     try {
       const res = await authClient.post<BackendAuthResponse>('/login', {
-        email: credentials.email.trim(),
+        email: credentials.email.trim().toLowerCase(),
         password: credentials.password,
       });
 
-      const session = mapBackendAuthData(res.data.data);
+      const session = mapBackendAuthData(res.data.data ?? {});
       return {
         data: session,
         message: res.data.message || 'Logged in successfully',
@@ -89,11 +89,11 @@ class AuthService {
     try {
       const res = await authClient.post<BackendAuthResponse>('/signup', {
         name: credentials.name.trim(),
-        email: credentials.email.trim(),
+        email: credentials.email.trim().toLowerCase(),
         password: credentials.password,
       });
 
-      const session = mapBackendAuthData(res.data.data);
+      const session = mapBackendAuthData(res.data.data ?? {});
       return {
         data: session,
         message: res.data.message || 'Account created successfully',
@@ -104,21 +104,26 @@ class AuthService {
   }
 
   /**
+   * Authenticate the existing browser session using only the HTTP-only
+   * refreshToken cookie. This request never reads or sends the access token.
+   */
+  async authenticate(): Promise<ApiResponse<AuthSession>> {
+    const res = await refreshClient.post<BackendAuthResponse>('/refreshPoint');
+
+    return {
+      data: mapBackendAuthData(res.data.data ?? {}),
+      message: res.data.message || 'Session authenticated successfully',
+    };
+  }
+
+  /**
    * Restore the session only through the refresh endpoint. No access token is
    * read from localStorage or sent to this request; the browser sends the
    * HTTP-only refreshToken cookie because refreshClient uses credentials.
    */
   async getCurrentSession(): Promise<ApiResponse<AuthSession | null>> {
     try {
-      const res = await refreshClient.post<BackendAuthResponse>('/refreshPoint');
-      if (res.data?.data) {
-        const session = mapBackendAuthData(res.data.data);
-        return {
-          data: session,
-          message: res.data.message,
-        };
-      }
-      return { data: null };
+      return await this.authenticate();
     } catch {
       // No refresh token cookie, or session expired/invalid
       return { data: null };
@@ -130,11 +135,8 @@ class AuthService {
    */
   async refreshToken(): Promise<AuthSession | null> {
     try {
-      const res = await refreshClient.post<BackendAuthResponse>('/refreshPoint');
-      if (res.data?.data) {
-        return mapBackendAuthData(res.data.data);
-      }
-      return null;
+      const res = await this.authenticate();
+      return res.data;
     } catch {
       return null;
     }

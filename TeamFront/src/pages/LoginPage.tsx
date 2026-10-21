@@ -170,7 +170,7 @@ export const LoginPage: React.FC = () => {
                   }}
                   className="rounded border border-line bg-surface px-2 py-1 text-[11px] text-ink hover:border-brand transition-colors"
                 >
-                  {u.name} ({u.title.split(' ')[0]})
+                  {u.name} ({u.title?.split(' ')[0]})
                 </button>
               ))}
             </div>

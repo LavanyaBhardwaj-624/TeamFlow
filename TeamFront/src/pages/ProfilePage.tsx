@@ -115,7 +115,7 @@ export const ProfilePage: React.FC = () => {
                 onClick={() => {
                   switchMockUser(persona);
                   setName(persona.name);
-                  setTitle(persona.title);
+                  setTitle(persona.title || " Hey I am A developer");
                 }}
                 className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
                   isCurrent
