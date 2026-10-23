@@ -1,4 +1,4 @@
-import { Activity, Task, User, Workspace } from '@/types';
+import { Activity, Task, User, Workspace, WorkspaceInvitation } from '@/types';
 
 // ============================================================================
 // BACKEND CONTRACT REFERENCE & INITIAL MOCK DATA
@@ -398,6 +398,13 @@ export let mockUsers: User[] = [...initialUsers];
 export let mockWorkspaces: Workspace[] = JSON.parse(JSON.stringify(initialWorkspaces));
 export let mockTasks: Task[] = JSON.parse(JSON.stringify(initialTasks));
 export let mockActivities: Activity[] = JSON.parse(JSON.stringify(initialActivities));
+export let mockInvitations: WorkspaceInvitation[] = [
+  {
+    id: 'invitation_1', workspaceId: 'ws_core_eng', workspaceName: 'Core Platform Engineering',
+    invitedBy: 'user_1', inviterName: 'Elena Rostova', invitedUserId: 'user_3',
+    email: 'sarah@teamflow.io', role: 'MEMBER', status: 'PENDING', createdAt: '2026-10-21T08:00:00.000Z',
+  },
+];
 
 /**
  * Resets in-memory mocks back to original initial values.
@@ -407,5 +414,7 @@ export const resetMockDatabase = () => {
   mockWorkspaces = JSON.parse(JSON.stringify(initialWorkspaces));
   mockTasks = JSON.parse(JSON.stringify(initialTasks));
   mockActivities = JSON.parse(JSON.stringify(initialActivities));
+  mockInvitations = JSON.parse(JSON.stringify([
+    { id: 'invitation_1', workspaceId: 'ws_core_eng', workspaceName: 'Core Platform Engineering', invitedBy: 'user_1', inviterName: 'Elena Rostova', invitedUserId: 'user_3', email: 'sarah@teamflow.io', role: 'MEMBER', status: 'PENDING', createdAt: '2026-10-21T08:00:00.000Z' },
+  ]));
 };
-

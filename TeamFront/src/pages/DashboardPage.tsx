@@ -43,6 +43,16 @@ export const DashboardPage: React.FC = () => {
     enabled: Boolean(activeWorkspaceId),
   });
 
+
+   // Tell Agent to add A null securtiy freature for activeWorkspaceId , in case if there is not no local
+   // storage stored activeworkspace such as just sign up -> has no workspace.
+
+
+
+
+
+
+
   const allWorkspaces = workspacesData?.data || [];
   const currentTasks = tasksData?.data || [];
 

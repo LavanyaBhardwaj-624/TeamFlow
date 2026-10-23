@@ -15,7 +15,7 @@ import { formatRelativeTime } from '@/lib/utils';
 import { Activity } from '@/types';
 
 interface ActivityFeedProps {
-  workspaceId?: string;
+  workspaceId?: string | null;
   limit?: number;
   showWorkspaceFilter?: boolean;
 }

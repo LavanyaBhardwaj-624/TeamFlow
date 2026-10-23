@@ -1,15 +1,15 @@
 
-import { Request , Response , NextFunction } from 'express'
-import jwt, {JwtPayload} from 'jsonwebtoken'
+import { type Request , type Response , type NextFunction } from 'express'
+import jwt, { type JwtPayload} from 'jsonwebtoken'
 import dotenv from 'dotenv'
 dotenv.config()
 
-import { setRefreshCookie , rotateRefreshToken} from '../utility/tokens'
+import { setRefreshCookie , rotateRefreshToken} from '../utility/tokens.ts'
 
 declare global {
 namespace Express {
   interface Request{
-      userId? : String
+      userId? : string
   }
 }
 }
@@ -26,6 +26,14 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       return next()
     } catch {
       // expired / invalid -> fall through to refresh token
+      res.status(401).json({
+            success: false , 
+            error:{
+            code: "AUTHENTICATION FAILED",
+            message: 'Invalid Credential',
+            status: 401,
+            }
+        });
     }
   }
  

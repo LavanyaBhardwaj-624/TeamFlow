@@ -116,6 +116,7 @@ apiClient.interceptors.response.use(
       // Call refreshPoint directly with refreshClient
       const refreshResponse = await refreshClient.post('/refreshPoint');
       const responseData = refreshResponse.data?.data;
+      // console.log(refreshResponse)
       const newToken: string | undefined = responseData?.accesstoken || responseData?.accessToken;
 
       if (!newToken) {

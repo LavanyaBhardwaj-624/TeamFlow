@@ -1,0 +1,97 @@
+
+import {type NextFunction, type Request , type Response} from 'express'
+import { db } from '../../prisma/db';
+import { workers } from 'node:cluster';
+
+const fail = (res: Response, status: number, message: string) => {
+        res.status(status).json({
+            success: false , 
+            error:{
+            code: "WORKSPACE_CREATION_ERR",
+            message: message,
+            status: status,
+            }
+        });
+};
+const createWorkspace = async (req: Request , res:Response , next: NextFunction ) : Promise<void> => {
+
+    // first create workspace -> then record activity.
+
+    const { body } = req;
+
+    // create workspace 
+    const {name , slug , description } = body;
+    const ownerId = req.userId;
+    try{
+    
+    if (!name?.trim())
+    return fail(res, 400, "Workspace name is required");
+    if (name.length > 100)
+    return fail(res, 400, "Workspace name is too long");
+   if (description && description.length > 5000)
+   return fail(res, 400, "Description too long");
+    if (!slug?.trim())
+    return fail(res, 400, "Slug is required");
+    
+    const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+    if (!slugRegex.test(slug))
+     return fail(res, 400, "Invalid slug");
+    if( !ownerId ) return fail( res , 400 , "Please Login/Signup to create Workpsace");
+
+    
+    const admin = await db.orm.public.User.where({
+      id: ownerId
+    }).first();
+
+    if(!admin) return fail(res , 404 , "  Workspace Creation failed");
+
+    const existingWorkspace =
+      await db.orm.public.Workspace.where({
+      slug
+     }).first();
+
+    if (existingWorkspace) {
+      return fail(res, 409, "Workspace slug already exists");
+    }
+  await db.transaction(async (tx) => {
+
+    const workspace = await tx.orm.public.Workspace.create({
+      name,
+      slug,
+      description,
+      createdBy: ownerId,
+    });
+
+    const member = await tx.orm.public.WorkspaceMember.create({
+      workspaceId: workspace.id,
+      userId: ownerId,
+      role: "ADMIN",
+    });
+
+    const activity = await tx.orm.public.TaskActivity.create({
+      workspaceId: workspace.id,
+      actorId: ownerId,
+      type: "WORKSPACE_CREATED",
+      description: `${admin.name} created workspace "${workspace.name}"`,
+    });
+
+   return res.status(201).json({
+      success: true,
+      status: 201,
+      message: `Workspace has been created Successfully`,
+      data: {
+         workspace: workspace,
+         member: member,
+         activity: activity,
+      },
+    });
+
+  });
+
+} catch (error) {
+   console.error(error);
+   return fail(res, 500, "Internal Server Error");
+}
+}
+
+export default createWorkspace

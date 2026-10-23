@@ -1,7 +1,7 @@
-import jwt, { JwtPayload } from 'jsonwebtoken'
+import jwt, { type JwtPayload } from 'jsonwebtoken'
 import { randomUUID } from 'node:crypto'
-import { Response } from 'express'
-import redis from '.././config/redis'
+import { type Response } from 'express'
+import redis from '.././config/redis.ts'
 import dotenv from 'dotenv'
 dotenv.config()
 

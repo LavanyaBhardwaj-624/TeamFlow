@@ -1,8 +1,8 @@
 
-import {Request , Response} from 'express'
-import redis from '../config/redis'
+import {type Request , type Response} from 'express'
+import redis from '../config/redis.ts'
 
-import jwt , {JwtPayload} from 'jsonwebtoken'
+import jwt , {type JwtPayload} from 'jsonwebtoken'
 const LogOut = async function(req : Request , res: Response): Promise<void> {
 
     const token: string | undefined = req.cookies?.refreshToken;

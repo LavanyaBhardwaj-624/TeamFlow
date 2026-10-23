@@ -2,10 +2,10 @@
 import express from 'express';
 
 const router = express.Router();
-import Signup from '../controllers/signup';
-import LogOut from '../controllers/Logut';
-import Login from '../controllers/login';
-import { newRefresh } from '../controllers/refreshPoint';
+import Signup from '../controllers/signup.ts';
+import LogOut from '../controllers/Logut.ts';
+import Login from '../controllers/login.ts';
+import { newRefresh } from '../controllers/refreshPoint.ts';
 
 router.post('/Signup', Signup);
 router.post('/Login', Login);

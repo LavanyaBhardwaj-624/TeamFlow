@@ -30,6 +30,21 @@ export interface Workspace {
   createdAt?: string;
 }
 
+export type InvitationStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'EXPIRED' | 'REVOKED';
+
+export interface WorkspaceInvitation {
+  id: string;
+  workspaceId: string;
+  workspaceName: string;
+  invitedBy: string;
+  inviterName: string;
+  invitedUserId: string;
+  email: string;
+  role: Role;
+  status: InvitationStatus;
+  createdAt: string;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -47,7 +62,7 @@ export interface Task {
 
 export interface Activity {
   id: string;
-  type: 'TASK_CREATED' | 'TASK_MOVED' | 'TASK_UPDATED' | 'TASK_DELETED' | 'MEMBER_JOINED' | 'WORKSPACE_CREATED';
+  type: 'TASK_CREATED' | 'TASK_MOVED' | 'TASK_UPDATED' | 'TASK_DELETED' | 'MEMBER_JOINED' | 'WORKSPACE_CREATED' | 'INVITATION_SENT' | 'INVITATION_DECLINED';
   description: string;
   workspaceId: string;
   userId: string;
@@ -70,4 +85,3 @@ export interface AuthSession {
   user: User;
   token: string;
 }
-

@@ -40,7 +40,7 @@ class MockSocketClient implements SocketStub {
 
   emit(event: string, ...args: any[]) {
     // In production, transmits binary/JSON frame over WebSocket
-    if (APP_CONFIG.enableSocketStub && process.env.NODE_ENV === 'development') {
+    if (APP_CONFIG.enableSocketStub && import.meta.env.NODE_ENV === 'development') {
       console.debug(`[Socket.IO Stub emit]: ${event}`, args);
     }
   }

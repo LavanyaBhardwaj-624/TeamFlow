@@ -3,14 +3,14 @@ import { STORAGE_KEYS } from '@/config/constants';
 import { initialWorkspaces } from '@/config/mockData';
 
 interface WorkspaceState {
-  activeWorkspaceId: string;
+  activeWorkspaceId: string | null;
   setActiveWorkspaceId: (id: string) => void;
 }
 
-const getStoredWorkspaceId = (): string => {
+const getStoredWorkspaceId = (): string | null => {
   const stored = localStorage.getItem(STORAGE_KEYS.ACTIVE_WORKSPACE_ID);
   if (stored) return stored;
-  return initialWorkspaces[0]?.id || 'ws_core_eng';
+  return initialWorkspaces[0]?.id || null;
 };
 
 export const useWorkspaceStore = create<WorkspaceState>((set) => ({

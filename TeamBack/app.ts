@@ -1,8 +1,9 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import Auth_router from './src/routes/authroutes'
-import redis from './src/config/redis'
+import Auth_router from './src/routes/authroutes.ts'
+import redis from './src/config/redis.ts'
+import workspaceInvitationRouter from './src/routes/workspace.routes/workspaceInvitation.routes.ts'
 const app = express();
 
 app.use(express.json());
@@ -14,6 +15,7 @@ app.use(cors({
 }));
 
 app.use( '/api/auth' , Auth_router);
+app.use('/api', workspaceInvitationRouter);
 
 
 const PORT = process.env.Server_Port || 3000;
@@ -34,3 +36,5 @@ async function connection(){
     }
 
 }
+
+connection();

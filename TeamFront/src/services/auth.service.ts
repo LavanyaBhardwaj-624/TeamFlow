@@ -25,12 +25,13 @@ export interface BackendAuthData {
   accesstoken?: string;
   accessToken?: string;
 }
-
+declare global{
 export interface BackendAuthResponse {
   success: boolean;
   status: number;
   message: string;
   data?: BackendAuthData;
+}
 }
 
 function mapBackendAuthData(data: BackendAuthData): AuthSession {

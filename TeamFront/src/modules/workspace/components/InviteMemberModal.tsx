@@ -9,6 +9,7 @@ import { inviteMemberSchema, InviteMemberFormValues } from '../schemas';
 import { workspaceService } from '@/services/workspace.service';
 import { authService } from '@/services/auth.service';
 import { useCurrentWorkspace } from '../useCurrentWorkspaceRole';
+import { useAuthStore } from '@/modules/auth/useAuthStore';
 
 interface InviteMemberModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ interface InviteMemberModalProps {
 export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, onClose }) => {
   const queryClient = useQueryClient();
   const { workspace } = useCurrentWorkspace();
+  const { user } = useAuthStore();
 
   const { data: usersData } = useQuery({
     queryKey: ['users'],
@@ -27,7 +29,13 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
 
   // Filter out members who are already in the workspace
   const currentMemberIds = new Set(workspace?.members.map((m) => m.userId) || []);
-  const availableUsers = allUsers.filter((u) => !currentMemberIds.has(u.id));
+  const { data: pendingUserIds = [] } = useQuery({
+    queryKey: ['workspace-pending-invites', workspace?.id],
+    queryFn: () => workspaceService.getPendingInvitedUserIds(workspace?.id || ''),
+    enabled: Boolean(workspace?.id),
+  });
+  const pendingIds = new Set(pendingUserIds);
+  const availableUsers = allUsers.filter((u) => !currentMemberIds.has(u.id) && !pendingIds.has(u.id));
 
   const {
     register,
@@ -45,17 +53,17 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
   const mutation = useMutation({
     mutationFn: (values: InviteMemberFormValues) => {
       if (!workspace) throw new Error('No workspace selected');
-      return workspaceService.addMember(workspace.id, {
+      return workspaceService.sendInvitation(workspace.id, workspace.slug, {
         userId: values.userId,
         role: values.role,
-      });
+      }, user?.id || '');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspace', workspace?.id] });
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
       queryClient.invalidateQueries({ queryKey: ['activities'] });
+      queryClient.invalidateQueries({ queryKey: ['workspace-pending-invites', workspace?.id] });
       reset();
-      onClose();
     },
   });
 
@@ -71,6 +79,17 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
       description={`Add a collaborator to "${workspace?.name || 'Workspace'}".`}
       maxWidth="md"
     >
+      {mutation.data?.message && (
+        <p role="status" className="mb-4 rounded-lg border border-green-500/20 bg-green-500/5 px-3 py-2 text-xs text-green-700 dark:text-green-400">
+          {mutation.data.message}
+        </p>
+      )}
+      {mutation.error && (
+        <p role="alert" className="mb-4 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-xs text-red-700 dark:text-red-400">
+          {mutation.error instanceof Error ? mutation.error.message : 'Unable to send invitation. Please try again.'}
+        </p>
+      )}
+
       {availableUsers.length === 0 ? (
         <div className="py-6 text-center text-xs text-ink-muted">
           All team directory users are already members of this workspace.
@@ -104,7 +123,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
               Cancel
             </Button>
             <Button type="submit" isLoading={mutation.isPending}>
-              Add to Workspace
+            Send Invitation
             </Button>
           </div>
         </form>
@@ -112,4 +131,3 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
     </Modal>
   );
 };
-

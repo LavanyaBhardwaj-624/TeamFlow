@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
-import { db } from '../prisma/db';
-import { hashPassword } from '../utility/PassHass';
-import { setRefreshCookie , signAccessToken , issueRefreshToken} from '../utility/tokens'
+import { type Request, type Response } from 'express';
+import { db } from '../prisma/db.ts';
+import { hashPassword } from '../utility/PassHass.ts';
+import { setRefreshCookie , signAccessToken , issueRefreshToken} from '../utility/tokens.ts'
 
 import dotenv from 'dotenv'
 dotenv.config()
@@ -58,6 +58,8 @@ const Signup = async function (req: Request, res: Response): Promise<void> {
       email: email.toLowerCase(),
       name: name ?? null,
       passwordHash: passHashed,
+      title: "I am a dev",
+      imageUrl: "Src image",
     });
 
     // generate access token:

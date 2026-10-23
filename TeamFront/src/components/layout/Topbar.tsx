@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Bell,
   ChevronDown,
@@ -19,6 +20,7 @@ import { Badge } from '@/components/ui/Badge';
 import { mockUsers } from '@/config/mockData';
 import { ROUTES } from '@/config/routes';
 import { cn } from '@/lib/utils';
+import { workspaceService } from '@/services/workspace.service';
 
 interface TopbarProps {
   onMobileMenuToggle: () => void;
@@ -28,6 +30,23 @@ interface TopbarProps {
 export const Topbar: React.FC<TopbarProps> = ({ onMobileMenuToggle, onOpenCreateTask }) => {
   const navigate = useNavigate();
   const { user, logout, switchMockUser } = useAuthStore();
+  const queryClient = useQueryClient();
+  const { data: invitationData } = useQuery({
+    queryKey: ['workspace-invitations', user?.id],
+    queryFn: () => workspaceService.getInvitationsForUser(user?.id || ''),
+    enabled: Boolean(user?.id),
+  });
+  const invitations = invitationData?.data || [];
+  const respondToInvitation = useMutation({
+    mutationFn: ({ id, response }: { id: string; response: 'ACCEPTED' | 'DECLINED' }) =>
+      workspaceService.respondToInvitation(id, user?.id || '', response),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workspace-invitations', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+      queryClient.invalidateQueries({ queryKey: ['workspace'] });
+      queryClient.invalidateQueries({ queryKey: ['activities'] });
+    },
+  });
   const { theme, toggleTheme } = useThemeStore();
   const { workspace, role, isAdmin } = useCurrentWorkspace();
 
@@ -112,18 +131,39 @@ export const Topbar: React.FC<TopbarProps> = ({ onMobileMenuToggle, onOpenCreate
             title="Notifications"
           >
             <Bell className="h-4 w-4" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand" />
+            {invitations.length > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand" />}
           </button>
 
           {notificationOpen && (
             <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-line bg-surface p-3 shadow-dropdown animate-in fade-in zoom-in-95 duration-100">
               <div className="flex items-center justify-between pb-2 border-b border-line">
                 <span className="text-xs font-semibold text-ink">Notifications</span>
+                {invitations.length > 0 && <span className="text-[10px] text-brand font-medium">{invitations.length} pending</span>}
                 <span className="text-[10px] text-brand font-medium cursor-pointer hover:underline">
                   Mark all read
                 </span>
               </div>
               <div className="py-2 space-y-2">
+                {respondToInvitation.data?.message && (
+                  <p role="status" className="rounded-lg border border-green-500/20 bg-green-500/5 px-2 py-2 text-xs text-green-700 dark:text-green-400">
+                    {respondToInvitation.data.message}
+                  </p>
+                )}
+                {respondToInvitation.error && (
+                  <p role="alert" className="rounded-lg border border-red-500/20 bg-red-500/5 px-2 py-2 text-xs text-red-700 dark:text-red-400">
+                    {respondToInvitation.error instanceof Error ? respondToInvitation.error.message : 'Unable to respond to invitation. Please try again.'}
+                  </p>
+                )}
+                {invitations.map((invitation) => (
+                  <div key={invitation.id} className="rounded-lg p-2 bg-brand/10 text-xs text-ink">
+                    <p className="font-medium">{invitation.inviterName} invited you</p>
+                    <p className="text-[11px] text-ink-muted mt-0.5">Join {invitation.workspaceName} as {invitation.role}</p>
+                    <div className="mt-2 flex gap-2">
+                      <button type="button" disabled={respondToInvitation.isPending} className="rounded-md bg-brand px-2 py-1 text-[11px] font-semibold text-white disabled:opacity-50" onClick={() => respondToInvitation.mutate({ id: invitation.id, response: 'ACCEPTED' })}>Accept</button>
+                      <button type="button" disabled={respondToInvitation.isPending} className="rounded-md border border-line px-2 py-1 text-[11px] text-ink-muted disabled:opacity-50" onClick={() => respondToInvitation.mutate({ id: invitation.id, response: 'DECLINED' })}>Decline</button>
+                    </div>
+                  </div>
+                ))}
                 <div className="rounded-lg p-2 bg-surface-secondary/60 text-xs text-ink">
                   <p className="font-medium text-ink">PgBouncer migration scheduled</p>
                   <p className="text-[11px] text-ink-muted mt-0.5">Assigned to David Okafor • 2h ago</p>
@@ -234,4 +274,3 @@ export const Topbar: React.FC<TopbarProps> = ({ onMobileMenuToggle, onOpenCreate
     </header>
   );
 };
-

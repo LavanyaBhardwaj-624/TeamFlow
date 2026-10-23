@@ -28,7 +28,7 @@ class TaskService {
   /**
    * Future endpoint: GET /api/workspaces/:workspaceId/tasks -> { data: Task[], total: number }
    */
-  async getTasksByWorkspace(workspaceId: string): Promise<PaginatedResponse<Task>> {
+  async getTasksByWorkspace(workspaceId: string | null): Promise<PaginatedResponse<Task>> {
     await delay(APP_CONFIG.mockApiDelayMs);
     const tasks = mockTasks.filter((t) => t.workspaceId === workspaceId);
     return {

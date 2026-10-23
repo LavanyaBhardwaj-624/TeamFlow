@@ -19,13 +19,36 @@ enum TaskPriority {
   URGENT
 }
 
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  REVOKED
+}
+
+enum ActivityType {
+  WORKSPACE_CREATED
+  MEMBER_JOINED
+  MEMBER_REMOVED
+  INVITATION_SENT
+  INVITATION_DECLINED
+  TASK_CREATED
+  TASK_UPDATED
+  TASK_MOVED
+  TASK_ASSIGNED
+  TASK_UNASSIGNED
+  TASK_COMMENTED
+  TASK_DELETED
+}
+
 model User {
   id           Uuid           @id @default(uuid())
   email        String         @unique
   name         String?
   passwordHash String
-  title        String
-  ImageLink    String
+  title        String?
+  imageUrl    String?
   createdAt    Timestamptz(6) @default(now())
   
 
@@ -34,12 +57,13 @@ model User {
   invitationsSent   WorkspaceInvitation[] @relation("InvitationSender")
   tasksCreated      Task[]                @relation("TaskCreator")
   taskComments      TaskComment[]
-  taskAssignments   TaskAssignee[]
+  activities        TaskActivity[]       @relation("ActivityActor")
 }
 
 model Workspace {
   id          Uuid           @id @default(uuid())
   name        String
+  slug        String          @unique
   description String?
   createdBy   Uuid
   createdAt   Timestamptz(6) @default(now())
@@ -61,6 +85,7 @@ model WorkspaceMember {
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskAssignments TaskAssignee[]
 
   @@unique([workspaceId, userId])
   @@index([userId])
@@ -72,9 +97,12 @@ model WorkspaceInvitation {
   invitedBy   Uuid
   email       String
   role        WorkspaceRole   @default(MEMBER)
+  status      InvitationStatus @default(PENDING)
   tokenHash   String          @unique
   expiresAt   Timestamptz(6)
   acceptedAt  Timestamptz(6)?
+  declinedAt  Timestamptz(6)?
+  revokedAt   Timestamptz(6)?
   createdAt   Timestamptz(6)  @default(now())
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
@@ -91,6 +119,7 @@ model Task {
   description String?
   status      TaskStatus     @default(TODO)
   priority    TaskPriority   @default(MEDIUM)
+  tags        String[]       @default([])
   dueAt       Timestamptz(6)?
   createdAt   Timestamptz(6) @default(now())
   updatedAt   temporal.updatedAt()
@@ -99,7 +128,9 @@ model Task {
   creator   User           @relation("TaskCreator", fields: [createdBy], references: [id], onDelete: Restrict)
   comments  TaskComment[]
   assignees TaskAssignee[]
+  activities TaskActivity[]
 
+  @@unique([id , workspaceId])
   @@index([workspaceId, status])
   @@index([createdBy])
   @@index([dueAt])
@@ -121,12 +152,32 @@ model TaskComment {
 
 model TaskAssignee {
   taskId     Uuid
+  workspaceId Uuid
   userId     Uuid
   assignedAt Timestamptz(6) @default(now())
 
-  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task Task @relation(fields: [taskId , workspaceId], references: [id , workspaceId], onDelete: Cascade)
+  membership WorkspaceMember @relation(fields: [workspaceId , userId], references: [workspaceId , userId], onDelete: Cascade)
 
   @@id([taskId, userId])
   @@index([userId])
+}
+
+model TaskActivity {
+  id          Uuid         @id @default(uuid())
+  workspaceId Uuid
+  taskId      Uuid?
+  actorId     Uuid?
+  type        ActivityType
+  description String?
+  metadata    Json?
+  createdAt   Timestamptz(6) @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  task      Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  actor     User?     @relation("ActivityActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, createdAt])
+  @@index([taskId, createdAt])
+  @@index([actorId])
 }

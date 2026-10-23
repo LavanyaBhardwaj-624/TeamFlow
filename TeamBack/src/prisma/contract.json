@@ -8,6 +8,10 @@
       "model": "Task",
       "namespace": "public"
     },
+    "TaskActivity": {
+      "model": "TaskActivity",
+      "namespace": "public"
+    },
     "TaskAssignee": {
       "model": "TaskAssignee",
       "namespace": "public"
@@ -37,6 +41,84 @@
     "namespaces": {
       "public": {
         "enum": {
+          "ActivityType": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "WORKSPACE_CREATED",
+                "value": "WORKSPACE_CREATED"
+              },
+              {
+                "name": "MEMBER_JOINED",
+                "value": "MEMBER_JOINED"
+              },
+              {
+                "name": "MEMBER_REMOVED",
+                "value": "MEMBER_REMOVED"
+              },
+              {
+                "name": "INVITATION_SENT",
+                "value": "INVITATION_SENT"
+              },
+              {
+                "name": "INVITATION_DECLINED",
+                "value": "INVITATION_DECLINED"
+              },
+              {
+                "name": "TASK_CREATED",
+                "value": "TASK_CREATED"
+              },
+              {
+                "name": "TASK_UPDATED",
+                "value": "TASK_UPDATED"
+              },
+              {
+                "name": "TASK_MOVED",
+                "value": "TASK_MOVED"
+              },
+              {
+                "name": "TASK_ASSIGNED",
+                "value": "TASK_ASSIGNED"
+              },
+              {
+                "name": "TASK_UNASSIGNED",
+                "value": "TASK_UNASSIGNED"
+              },
+              {
+                "name": "TASK_COMMENTED",
+                "value": "TASK_COMMENTED"
+              },
+              {
+                "name": "TASK_DELETED",
+                "value": "TASK_DELETED"
+              }
+            ]
+          },
+          "InvitationStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "PENDING",
+                "value": "PENDING"
+              },
+              {
+                "name": "ACCEPTED",
+                "value": "ACCEPTED"
+              },
+              {
+                "name": "DECLINED",
+                "value": "DECLINED"
+              },
+              {
+                "name": "EXPIRED",
+                "value": "EXPIRED"
+              },
+              {
+                "name": "REVOKED",
+                "value": "REVOKED"
+              }
+            ]
+          },
           "TaskPriority": {
             "codecId": "pg/text@1",
             "members": [
@@ -163,6 +245,16 @@
                   "plane": "domain"
                 }
               },
+              "tags": {
+                "many": {
+                  "elementNullable": false
+                },
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "title": {
                 "nullable": false,
                 "type": {
@@ -186,7 +278,7 @@
               }
             },
             "relations": {
-              "assignees": {
+              "activities": {
                 "cardinality": "1:N",
                 "on": {
                   "localFields": [
@@ -194,6 +286,23 @@
                   ],
                   "targetFields": [
                     "taskId"
+                  ]
+                },
+                "to": {
+                  "model": "TaskActivity",
+                  "namespace": "public"
+                }
+              },
+              "assignees": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id",
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "taskId",
+                    "workspaceId"
                   ]
                 },
                 "to": {
@@ -272,6 +381,9 @@
                 "status": {
                   "column": "status"
                 },
+                "tags": {
+                  "column": "tags"
+                },
                 "title": {
                   "column": "title"
                 },
@@ -284,6 +396,155 @@
               },
               "namespaceId": "public",
               "table": "Task"
+            }
+          },
+          "TaskActivity": {
+            "fields": {
+              "actorId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 6
+                  }
+                }
+              },
+              "description": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "metadata": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/json@1",
+                  "kind": "scalar"
+                }
+              },
+              "taskId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "type": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "ActivityType",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "workspaceId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "actor": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "actorId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "task": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "taskId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Task",
+                  "namespace": "public"
+                }
+              },
+              "workspace": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Workspace",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "actorId": {
+                  "column": "actorId"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "description": {
+                  "column": "description"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "metadata": {
+                  "column": "metadata"
+                },
+                "taskId": {
+                  "column": "taskId"
+                },
+                "type": {
+                  "column": "type"
+                },
+                "workspaceId": {
+                  "column": "workspaceId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "TaskActivity"
             }
           },
           "TaskAssignee": {
@@ -311,38 +572,49 @@
                   "codecId": "pg/uuid@1",
                   "kind": "scalar"
                 }
+              },
+              "workspaceId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {
+              "membership": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "workspaceId",
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "workspaceId",
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "WorkspaceMember",
+                  "namespace": "public"
+                }
+              },
               "task": {
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
                   "localFields": [
-                    "taskId"
+                    "taskId",
+                    "workspaceId"
                   ],
                   "targetFields": [
-                    "id"
+                    "id",
+                    "workspaceId"
                   ]
                 },
                 "to": {
                   "model": "Task",
-                  "namespace": "public"
-                }
-              },
-              "user": {
-                "cardinality": "N:1",
-                "nullable": false,
-                "on": {
-                  "localFields": [
-                    "userId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "User",
                   "namespace": "public"
                 }
               }
@@ -357,6 +629,9 @@
                 },
                 "userId": {
                   "column": "userId"
+                },
+                "workspaceId": {
+                  "column": "workspaceId"
                 }
               },
               "namespaceId": "public",
@@ -486,6 +761,13 @@
                   "kind": "scalar"
                 }
               },
+              "imageUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "name": {
                 "nullable": true,
                 "type": {
@@ -499,9 +781,31 @@
                   "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
+              },
+              "title": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {
+              "activities": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "actorId"
+                  ]
+                },
+                "to": {
+                  "model": "TaskActivity",
+                  "namespace": "public"
+                }
+              },
               "invitationsSent": {
                 "cardinality": "1:N",
                 "on": {
@@ -529,21 +833,6 @@
                 },
                 "to": {
                   "model": "WorkspaceMember",
-                  "namespace": "public"
-                }
-              },
-              "taskAssignments": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "userId"
-                  ]
-                },
-                "to": {
-                  "model": "TaskAssignee",
                   "namespace": "public"
                 }
               },
@@ -604,11 +893,17 @@
                 "id": {
                   "column": "id"
                 },
+                "imageUrl": {
+                  "column": "imageUrl"
+                },
                 "name": {
                   "column": "name"
                 },
                 "passwordHash": {
                   "column": "passwordHash"
+                },
+                "title": {
+                  "column": "title"
                 }
               },
               "namespaceId": "public",
@@ -649,6 +944,13 @@
                 }
               },
               "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "slug": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
@@ -735,6 +1037,9 @@
                 },
                 "name": {
                   "column": "name"
+                },
+                "slug": {
+                  "column": "slug"
                 }
               },
               "namespaceId": "public",
@@ -755,6 +1060,16 @@
               },
               "createdAt": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 6
+                  }
+                }
+              },
+              "declinedAt": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "kind": "scalar",
@@ -794,6 +1109,16 @@
                   "kind": "scalar"
                 }
               },
+              "revokedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 6
+                  }
+                }
+              },
               "role": {
                 "nullable": false,
                 "type": {
@@ -803,6 +1128,19 @@
                 "valueSet": {
                   "entityKind": "enum",
                   "entityName": "WorkspaceRole",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "InvitationStatus",
                   "namespaceId": "public",
                   "plane": "domain"
                 }
@@ -864,6 +1202,9 @@
                 "createdAt": {
                   "column": "createdAt"
                 },
+                "declinedAt": {
+                  "column": "declinedAt"
+                },
                 "email": {
                   "column": "email"
                 },
@@ -876,8 +1217,14 @@
                 "invitedBy": {
                   "column": "invitedBy"
                 },
+                "revokedAt": {
+                  "column": "revokedAt"
+                },
                 "role": {
                   "column": "role"
+                },
+                "status": {
+                  "column": "status"
                 },
                 "tokenHash": {
                   "column": "tokenHash"
@@ -938,6 +1285,23 @@
               }
             },
             "relations": {
+              "taskAssignments": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "workspaceId",
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "workspaceId",
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "TaskAssignee",
+                  "namespace": "public"
+                }
+              },
               "user": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -1013,6 +1377,11 @@
                   "expression": "\"status\" IN ('TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE')",
                   "name": "Task_status_check_217ccf21",
                   "prefix": "Task_status_check"
+                },
+                {
+                  "expression": "array_position(\"tags\", NULL) IS NULL",
+                  "name": "Task_tags_elem_not_null_aecbe9e2",
+                  "prefix": "Task_tags_elem_not_null"
                 }
               ],
               "columns": {
@@ -1080,6 +1449,18 @@
                     "namespaceId": "public",
                     "plane": "storage"
                   }
+                },
+                "tags": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": []
+                  },
+                  "many": {
+                    "elementNullable": false
+                  },
+                  "nullable": false
                 },
                 "title": {
                   "codecId": "pg/text@1",
@@ -1179,6 +1560,189 @@
                   "id"
                 ]
               },
+              "uniques": [
+                {
+                  "columns": [
+                    "id",
+                    "workspaceId"
+                  ]
+                }
+              ]
+            },
+            "TaskActivity": {
+              "checks": [
+                {
+                  "expression": "\"type\" IN ('WORKSPACE_CREATED', 'MEMBER_JOINED', 'MEMBER_REMOVED', 'INVITATION_SENT', 'INVITATION_DECLINED', 'TASK_CREATED', 'TASK_UPDATED', 'TASK_MOVED', 'TASK_ASSIGNED', 'TASK_UNASSIGNED', 'TASK_COMMENTED', 'TASK_DELETED')",
+                  "name": "TaskActivity_type_check_2dfd60e8",
+                  "prefix": "TaskActivity_type_check"
+                }
+              ],
+              "columns": {
+                "actorId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 6
+                  }
+                },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "metadata": {
+                  "codecId": "pg/json@1",
+                  "dataType": "pg/json",
+                  "nullable": true
+                },
+                "taskId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": true
+                },
+                "type": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "ActivityType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "workspaceId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "TaskActivity_workspaceId_idx_ba65f874"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "workspaceId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "TaskActivity"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Workspace"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "TaskActivity_taskId_idx_4965c936"
+                  },
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "taskId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "TaskActivity"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Task"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "TaskActivity_actorId_idx_a58f6b4b"
+                  },
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "actorId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "TaskActivity"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "actorId"
+                  ],
+                  "name": "TaskActivity_actorId_idx_a58f6b4b",
+                  "prefix": "TaskActivity_actorId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "taskId",
+                    "createdAt"
+                  ],
+                  "name": "TaskActivity_taskId_createdAt_idx_f41547ff",
+                  "prefix": "TaskActivity_taskId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "taskId"
+                  ],
+                  "name": "TaskActivity_taskId_idx_4965c936",
+                  "prefix": "TaskActivity_taskId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "workspaceId",
+                    "createdAt"
+                  ],
+                  "name": "TaskActivity_workspaceId_createdAt_idx_5ff7e893",
+                  "prefix": "TaskActivity_workspaceId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "workspaceId"
+                  ],
+                  "name": "TaskActivity_workspaceId_idx_ba65f874",
+                  "prefix": "TaskActivity_workspaceId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
               "uniques": []
             },
             "TaskAssignee": {
@@ -1204,24 +1768,31 @@
                   "codecId": "pg/uuid@1",
                   "dataType": "pg/uuid",
                   "nullable": false
+                },
+                "workspaceId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
                 }
               },
               "foreignKeys": [
                 {
                   "index": {
-                    "name": "TaskAssignee_taskId_idx_4965c936"
+                    "name": "TaskAssignee_taskId_workspaceId_idx_c5340bfa"
                   },
                   "onDelete": "cascade",
                   "source": {
                     "columns": [
-                      "taskId"
+                      "taskId",
+                      "workspaceId"
                     ],
                     "namespaceId": "public",
                     "tableName": "TaskAssignee"
                   },
                   "target": {
                     "columns": [
-                      "id"
+                      "id",
+                      "workspaceId"
                     ],
                     "namespaceId": "public",
                     "tableName": "Task"
@@ -1229,11 +1800,12 @@
                 },
                 {
                   "index": {
-                    "name": "TaskAssignee_userId_idx_a489d58a"
+                    "name": "TaskAssignee_workspaceId_userId_idx_6210ae03"
                   },
                   "onDelete": "cascade",
                   "source": {
                     "columns": [
+                      "workspaceId",
                       "userId"
                     ],
                     "namespaceId": "public",
@@ -1241,20 +1813,22 @@
                   },
                   "target": {
                     "columns": [
-                      "id"
+                      "workspaceId",
+                      "userId"
                     ],
                     "namespaceId": "public",
-                    "tableName": "User"
+                    "tableName": "WorkspaceMember"
                   }
                 }
               ],
               "indexes": [
                 {
                   "columns": [
-                    "taskId"
+                    "taskId",
+                    "workspaceId"
                   ],
-                  "name": "TaskAssignee_taskId_idx_4965c936",
-                  "prefix": "TaskAssignee_taskId_idx",
+                  "name": "TaskAssignee_taskId_workspaceId_idx_c5340bfa",
+                  "prefix": "TaskAssignee_taskId_workspaceId_idx",
                   "unique": false
                 },
                 {
@@ -1263,6 +1837,15 @@
                   ],
                   "name": "TaskAssignee_userId_idx_a489d58a",
                   "prefix": "TaskAssignee_userId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "workspaceId",
+                    "userId"
+                  ],
+                  "name": "TaskAssignee_workspaceId_userId_idx_6210ae03",
+                  "prefix": "TaskAssignee_workspaceId_userId_idx",
                   "unique": false
                 }
               ],
@@ -1409,6 +1992,11 @@
                   "dataType": "pg/uuid",
                   "nullable": false
                 },
+                "imageUrl": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
                 "name": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -1418,6 +2006,11 @@
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
                   "nullable": false
+                },
+                "title": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
                 }
               },
               "foreignKeys": [],
@@ -1468,6 +2061,11 @@
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
                   "nullable": false
+                },
+                "slug": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
                 }
               },
               "foreignKeys": [
@@ -1507,7 +2105,13 @@
                   "id"
                 ]
               },
-              "uniques": []
+              "uniques": [
+                {
+                  "columns": [
+                    "slug"
+                  ]
+                }
+              ]
             },
             "WorkspaceInvitation": {
               "checks": [
@@ -1515,6 +2119,11 @@
                   "expression": "\"role\" IN ('ADMIN', 'MEMBER')",
                   "name": "WorkspaceInvitation_role_check_ddb31015",
                   "prefix": "WorkspaceInvitation_role_check"
+                },
+                {
+                  "expression": "\"status\" IN ('PENDING', 'ACCEPTED', 'DECLINED', 'EXPIRED', 'REVOKED')",
+                  "name": "WorkspaceInvitation_status_check_875de982",
+                  "prefix": "WorkspaceInvitation_status_check"
                 }
               ],
               "columns": {
@@ -1534,6 +2143,14 @@
                     "kind": "function"
                   },
                   "nullable": false,
+                  "typeParams": {
+                    "precision": 6
+                  }
+                },
+                "declinedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true,
                   "typeParams": {
                     "precision": 6
                   }
@@ -1561,6 +2178,14 @@
                   "dataType": "pg/uuid",
                   "nullable": false
                 },
+                "revokedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 6
+                  }
+                },
                 "role": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -1572,6 +2197,21 @@
                   "valueSet": {
                     "entityKind": "valueSet",
                     "entityName": "WorkspaceRole",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "PENDING"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "InvitationStatus",
                     "namespaceId": "public",
                     "plane": "storage"
                   }
@@ -1797,6 +2437,33 @@
             }
           },
           "valueSet": {
+            "ActivityType": {
+              "kind": "valueSet",
+              "values": [
+                "WORKSPACE_CREATED",
+                "MEMBER_JOINED",
+                "MEMBER_REMOVED",
+                "INVITATION_SENT",
+                "INVITATION_DECLINED",
+                "TASK_CREATED",
+                "TASK_UPDATED",
+                "TASK_MOVED",
+                "TASK_ASSIGNED",
+                "TASK_UNASSIGNED",
+                "TASK_COMMENTED",
+                "TASK_DELETED"
+              ]
+            },
+            "InvitationStatus": {
+              "kind": "valueSet",
+              "values": [
+                "PENDING",
+                "ACCEPTED",
+                "DECLINED",
+                "EXPIRED",
+                "REVOKED"
+              ]
+            },
             "TaskPriority": {
               "kind": "valueSet",
               "values": [
@@ -1828,10 +2495,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "19f05f3faf36d6bea44d1ac6edcff3137ed76b7f410cf1f5b7ce503de28618f5"
+    "storageHash": "900cbc6a6b80b87ca20b79c91d9732994159f1df878a07d114b8ee96b51bc7eb"
   },
   "execution": {
-    "executionHash": "1fc0661a73398fa9bb24fb0e2158ffbd4d77f157c3f911848e5d5bfa807846b3",
+    "executionHash": "ac3740c08db07a153822d7b44a03174d3cb8760bc1a8a22f72639ad7398f5cac",
     "mutations": {
       "defaults": [
         {
@@ -1857,6 +2524,17 @@
           "ref": {
             "entry": "Task",
             "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "TaskActivity",
+            "field": "id",
             "namespace": "public"
           }
         },

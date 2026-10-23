@@ -1,15 +1,15 @@
 
-import { Request , Response , NextFunction } from 'express'
-import { db } from '.././prisma/db'
+import { type Request , type Response , type NextFunction } from 'express'
+import { db } from '.././prisma/db.ts'
 import dotenv from 'dotenv'
 dotenv.config()
 
-import { setRefreshCookie , rotateRefreshToken} from '../utility/tokens'
+import { setRefreshCookie , rotateRefreshToken} from '../utility/tokens.ts'
 
 declare global {
 namespace Express {
   interface Request{
-      userId? : String
+      userId? : string
   }
 }
 }

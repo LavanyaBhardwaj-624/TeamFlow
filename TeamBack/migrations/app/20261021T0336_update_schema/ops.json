@@ -1,0 +1,1173 @@
+[
+  {
+    "id": "renameColumn.User.ImageLink",
+    "label": "Rename column \"User\".\"ImageLink\" to \"imageUrl\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "imageUrl",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"ImageLink\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "ImageLink"
+        ]
+      },
+      {
+        "description": "ensure column \"imageUrl\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "imageUrl"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename column \"ImageLink\" to \"imageUrl\"",
+        "sql": "ALTER TABLE \"public\".\"User\" RENAME COLUMN \"ImageLink\" TO \"imageUrl\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"imageUrl\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "imageUrl"
+        ]
+      },
+      {
+        "description": "verify column \"ImageLink\" no longer exists",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "ImageLink"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropConstraint.TaskAssignee.TaskAssignee_taskId_fkey",
+    "label": "Drop constraint \"TaskAssignee_taskId_fkey\" on \"TaskAssignee\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "TaskAssignee_taskId_fkey",
+        "table": "TaskAssignee"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"TaskAssignee_taskId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskAssignee_taskId_fkey",
+          "public",
+          "\"public\".\"TaskAssignee\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"TaskAssignee_taskId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"TaskAssignee\" DROP CONSTRAINT \"TaskAssignee_taskId_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"TaskAssignee_taskId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskAssignee_taskId_fkey",
+          "public",
+          "\"public\".\"TaskAssignee\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropConstraint.TaskAssignee.TaskAssignee_userId_fkey",
+    "label": "Drop constraint \"TaskAssignee_userId_fkey\" on \"TaskAssignee\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "TaskAssignee_userId_fkey",
+        "table": "TaskAssignee"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"TaskAssignee_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskAssignee_userId_fkey",
+          "public",
+          "\"public\".\"TaskAssignee\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"TaskAssignee_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"TaskAssignee\" DROP CONSTRAINT \"TaskAssignee_userId_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"TaskAssignee_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskAssignee_userId_fkey",
+          "public",
+          "\"public\".\"TaskAssignee\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.TaskAssignee.TaskAssignee_taskId_idx_4965c936",
+    "label": "Drop index \"TaskAssignee_taskId_idx_4965c936\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "TaskAssignee_taskId_idx_4965c936",
+        "table": "TaskAssignee"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"TaskAssignee_taskId_idx_4965c936\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskAssignee_taskId_idx_4965c936\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"TaskAssignee_taskId_idx_4965c936\"",
+        "sql": "DROP INDEX \"public\".\"TaskAssignee_taskId_idx_4965c936\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"TaskAssignee_taskId_idx_4965c936\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskAssignee_taskId_idx_4965c936\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.TaskActivity",
+    "label": "Create table \"TaskActivity\"",
+    "summary": "Creates table \"TaskActivity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "TaskActivity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"TaskActivity\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskActivity\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"TaskActivity\"",
+        "sql": "CREATE TABLE \"public\".\"TaskActivity\" (\n  \"actorId\" uuid,\n  \"createdAt\" timestamptz(6) DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"id\" uuid NOT NULL,\n  \"metadata\" json,\n  \"taskId\" uuid,\n  \"type\" text NOT NULL,\n  \"workspaceId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"TaskActivity_type_check_2dfd60e8\" CHECK (\"type\" IN ('WORKSPACE_CREATED', 'MEMBER_JOINED', 'MEMBER_REMOVED', 'INVITATION_SENT', 'INVITATION_DECLINED', 'TASK_CREATED', 'TASK_UPDATED', 'TASK_MOVED', 'TASK_ASSIGNED', 'TASK_UNASSIGNED', 'TASK_COMMENTED', 'TASK_DELETED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"TaskActivity\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskActivity\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Task.tags",
+    "label": "Add column \"tags\" to \"Task\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "tags",
+        "table": "Task"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"tags\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Task",
+          "tags"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"tags\"",
+        "sql": "ALTER TABLE \"public\".\"Task\" ADD COLUMN \"tags\" text[] DEFAULT '{}' NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"tags\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Task",
+          "tags"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.WorkspaceInvitation.declinedAt",
+    "label": "Add column \"declinedAt\" to \"WorkspaceInvitation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "declinedAt",
+        "table": "WorkspaceInvitation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"declinedAt\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "WorkspaceInvitation",
+          "declinedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"declinedAt\"",
+        "sql": "ALTER TABLE \"public\".\"WorkspaceInvitation\" ADD COLUMN \"declinedAt\" timestamptz(6)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"declinedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "WorkspaceInvitation",
+          "declinedAt"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.WorkspaceInvitation.revokedAt",
+    "label": "Add column \"revokedAt\" to \"WorkspaceInvitation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "revokedAt",
+        "table": "WorkspaceInvitation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"revokedAt\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "WorkspaceInvitation",
+          "revokedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"revokedAt\"",
+        "sql": "ALTER TABLE \"public\".\"WorkspaceInvitation\" ADD COLUMN \"revokedAt\" timestamptz(6)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"revokedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "WorkspaceInvitation",
+          "revokedAt"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.WorkspaceInvitation.status",
+    "label": "Add column \"status\" to \"WorkspaceInvitation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "status",
+        "table": "WorkspaceInvitation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"status\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "WorkspaceInvitation",
+          "status"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"status\"",
+        "sql": "ALTER TABLE \"public\".\"WorkspaceInvitation\" ADD COLUMN \"status\" text DEFAULT 'PENDING' NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"status\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "WorkspaceInvitation",
+          "status"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.TaskAssignee.workspaceId",
+    "label": "Add column workspaceId to TaskAssignee",
+    "summary": "Adds column workspaceId to table TaskAssignee",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "workspaceId",
+        "table": "TaskAssignee"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"workspaceId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "TaskAssignee",
+          "workspaceId"
+        ]
+      },
+      {
+        "description": "ensure table \"TaskAssignee\" is empty before adding NOT NULL column without default",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"public\".\"TaskAssignee\" LIMIT 1) AS \"result\"",
+        "params": [],
+        "meta": {
+          "requiredColumn": {
+            "table": "TaskAssignee",
+            "column": "workspaceId",
+            "reason": "newField"
+          }
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"workspaceId\"",
+        "sql": "ALTER TABLE \"public\".\"TaskAssignee\" ADD COLUMN \"workspaceId\" uuid NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"workspaceId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "TaskAssignee",
+          "workspaceId"
+        ]
+      },
+      {
+        "description": "verify column \"workspaceId\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "TaskAssignee",
+          "workspaceId",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.Workspace.slug",
+    "label": "Add column slug to Workspace",
+    "summary": "Adds column slug to table Workspace",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "slug",
+        "table": "Workspace"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"slug\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Workspace",
+          "slug"
+        ]
+      },
+      {
+        "description": "ensure table \"Workspace\" is empty before adding NOT NULL column without default",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"public\".\"Workspace\" LIMIT 1) AS \"result\"",
+        "params": [],
+        "meta": {
+          "requiredColumn": {
+            "table": "Workspace",
+            "column": "slug",
+            "reason": "newField"
+          }
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"slug\"",
+        "sql": "ALTER TABLE \"public\".\"Workspace\" ADD COLUMN \"slug\" text NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"slug\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Workspace",
+          "slug"
+        ]
+      },
+      {
+        "description": "verify column \"slug\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "Workspace",
+          "slug",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.Task.Task_tags_elem_not_null_aecbe9e2",
+    "label": "Add check constraint \"Task_tags_elem_not_null_aecbe9e2\" on \"Task\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "Task_tags_elem_not_null_aecbe9e2",
+        "table": "Task"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Task_tags_elem_not_null_aecbe9e2\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Task_tags_elem_not_null_aecbe9e2",
+          "public",
+          "\"public\".\"Task\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"Task_tags_elem_not_null_aecbe9e2\"",
+        "sql": "ALTER TABLE \"public\".\"Task\" ADD CONSTRAINT \"Task_tags_elem_not_null_aecbe9e2\" CHECK (array_position(\"tags\", NULL) IS NULL)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Task_tags_elem_not_null_aecbe9e2\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Task_tags_elem_not_null_aecbe9e2",
+          "public",
+          "\"public\".\"Task\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Task.Task_id_workspaceId_key",
+    "label": "Add unique constraint on \"Task\" (id, workspaceId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Task_id_workspaceId_key",
+        "table": "Task"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Task_id_workspaceId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Task_id_workspaceId_key",
+          "public",
+          "\"public\".\"Task\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Task_id_workspaceId_key\"",
+        "sql": "ALTER TABLE \"public\".\"Task\" ADD CONSTRAINT \"Task_id_workspaceId_key\" UNIQUE (\"id\", \"workspaceId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Task_id_workspaceId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Task_id_workspaceId_key",
+          "public",
+          "\"public\".\"Task\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Workspace.Workspace_slug_key",
+    "label": "Add unique constraint on \"Workspace\" (slug)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Workspace_slug_key",
+        "table": "Workspace"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Workspace_slug_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Workspace_slug_key",
+          "public",
+          "\"public\".\"Workspace\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Workspace_slug_key\"",
+        "sql": "ALTER TABLE \"public\".\"Workspace\" ADD CONSTRAINT \"Workspace_slug_key\" UNIQUE (\"slug\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Workspace_slug_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Workspace_slug_key",
+          "public",
+          "\"public\".\"Workspace\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.WorkspaceInvitation.WorkspaceInvitation_status_check_875de982",
+    "label": "Add check constraint \"WorkspaceInvitation_status_check_875de982\" on \"WorkspaceInvitation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "WorkspaceInvitation_status_check_875de982",
+        "table": "WorkspaceInvitation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"WorkspaceInvitation_status_check_875de982\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WorkspaceInvitation_status_check_875de982",
+          "public",
+          "\"public\".\"WorkspaceInvitation\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"WorkspaceInvitation_status_check_875de982\"",
+        "sql": "ALTER TABLE \"public\".\"WorkspaceInvitation\" ADD CONSTRAINT \"WorkspaceInvitation_status_check_875de982\" CHECK (\"status\" IN ('PENDING', 'ACCEPTED', 'DECLINED', 'EXPIRED', 'REVOKED'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"WorkspaceInvitation_status_check_875de982\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WorkspaceInvitation_status_check_875de982",
+          "public",
+          "\"public\".\"WorkspaceInvitation\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.TaskActivity.TaskActivity_actorId_idx_a58f6b4b",
+    "label": "Create index \"TaskActivity_actorId_idx_a58f6b4b\" on \"TaskActivity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "TaskActivity_actorId_idx_a58f6b4b",
+        "table": "TaskActivity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"TaskActivity_actorId_idx_a58f6b4b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskActivity_actorId_idx_a58f6b4b\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"TaskActivity_actorId_idx_a58f6b4b\"",
+        "sql": "CREATE INDEX \"TaskActivity_actorId_idx_a58f6b4b\" ON \"public\".\"TaskActivity\" (\"actorId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"TaskActivity_actorId_idx_a58f6b4b\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskActivity_actorId_idx_a58f6b4b\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.TaskActivity.TaskActivity_taskId_createdAt_idx_f41547ff",
+    "label": "Create index \"TaskActivity_taskId_createdAt_idx_f41547ff\" on \"TaskActivity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "TaskActivity_taskId_createdAt_idx_f41547ff",
+        "table": "TaskActivity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"TaskActivity_taskId_createdAt_idx_f41547ff\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskActivity_taskId_createdAt_idx_f41547ff\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"TaskActivity_taskId_createdAt_idx_f41547ff\"",
+        "sql": "CREATE INDEX \"TaskActivity_taskId_createdAt_idx_f41547ff\" ON \"public\".\"TaskActivity\" (\"taskId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"TaskActivity_taskId_createdAt_idx_f41547ff\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskActivity_taskId_createdAt_idx_f41547ff\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.TaskActivity.TaskActivity_taskId_idx_4965c936",
+    "label": "Create index \"TaskActivity_taskId_idx_4965c936\" on \"TaskActivity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "TaskActivity_taskId_idx_4965c936",
+        "table": "TaskActivity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"TaskActivity_taskId_idx_4965c936\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskActivity_taskId_idx_4965c936\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"TaskActivity_taskId_idx_4965c936\"",
+        "sql": "CREATE INDEX \"TaskActivity_taskId_idx_4965c936\" ON \"public\".\"TaskActivity\" (\"taskId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"TaskActivity_taskId_idx_4965c936\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskActivity_taskId_idx_4965c936\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.TaskActivity.TaskActivity_workspaceId_createdAt_idx_5ff7e893",
+    "label": "Create index \"TaskActivity_workspaceId_createdAt_idx_5ff7e893\" on \"TaskActivity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "TaskActivity_workspaceId_createdAt_idx_5ff7e893",
+        "table": "TaskActivity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"TaskActivity_workspaceId_createdAt_idx_5ff7e893\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskActivity_workspaceId_createdAt_idx_5ff7e893\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"TaskActivity_workspaceId_createdAt_idx_5ff7e893\"",
+        "sql": "CREATE INDEX \"TaskActivity_workspaceId_createdAt_idx_5ff7e893\" ON \"public\".\"TaskActivity\" (\"workspaceId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"TaskActivity_workspaceId_createdAt_idx_5ff7e893\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskActivity_workspaceId_createdAt_idx_5ff7e893\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.TaskActivity.TaskActivity_workspaceId_idx_ba65f874",
+    "label": "Create index \"TaskActivity_workspaceId_idx_ba65f874\" on \"TaskActivity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "TaskActivity_workspaceId_idx_ba65f874",
+        "table": "TaskActivity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"TaskActivity_workspaceId_idx_ba65f874\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskActivity_workspaceId_idx_ba65f874\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"TaskActivity_workspaceId_idx_ba65f874\"",
+        "sql": "CREATE INDEX \"TaskActivity_workspaceId_idx_ba65f874\" ON \"public\".\"TaskActivity\" (\"workspaceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"TaskActivity_workspaceId_idx_ba65f874\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskActivity_workspaceId_idx_ba65f874\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.TaskAssignee.TaskAssignee_taskId_workspaceId_idx_c5340bfa",
+    "label": "Create index \"TaskAssignee_taskId_workspaceId_idx_c5340bfa\" on \"TaskAssignee\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "TaskAssignee_taskId_workspaceId_idx_c5340bfa",
+        "table": "TaskAssignee"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"TaskAssignee_taskId_workspaceId_idx_c5340bfa\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskAssignee_taskId_workspaceId_idx_c5340bfa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"TaskAssignee_taskId_workspaceId_idx_c5340bfa\"",
+        "sql": "CREATE INDEX \"TaskAssignee_taskId_workspaceId_idx_c5340bfa\" ON \"public\".\"TaskAssignee\" (\"taskId\", \"workspaceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"TaskAssignee_taskId_workspaceId_idx_c5340bfa\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskAssignee_taskId_workspaceId_idx_c5340bfa\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.TaskAssignee.TaskAssignee_workspaceId_userId_idx_6210ae03",
+    "label": "Create index \"TaskAssignee_workspaceId_userId_idx_6210ae03\" on \"TaskAssignee\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "TaskAssignee_workspaceId_userId_idx_6210ae03",
+        "table": "TaskAssignee"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"TaskAssignee_workspaceId_userId_idx_6210ae03\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskAssignee_workspaceId_userId_idx_6210ae03\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"TaskAssignee_workspaceId_userId_idx_6210ae03\"",
+        "sql": "CREATE INDEX \"TaskAssignee_workspaceId_userId_idx_6210ae03\" ON \"public\".\"TaskAssignee\" (\"workspaceId\", \"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"TaskAssignee_workspaceId_userId_idx_6210ae03\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TaskAssignee_workspaceId_userId_idx_6210ae03\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.TaskActivity.TaskActivity_workspaceId_fkey",
+    "label": "Add foreign key \"TaskActivity_workspaceId_fkey\" on \"TaskActivity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "TaskActivity_workspaceId_fkey",
+        "table": "TaskActivity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"TaskActivity_workspaceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskActivity_workspaceId_fkey",
+          "public",
+          "\"public\".\"TaskActivity\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"TaskActivity_workspaceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"TaskActivity\"\nADD CONSTRAINT \"TaskActivity_workspaceId_fkey\"\nFOREIGN KEY (\"workspaceId\")\nREFERENCES \"public\".\"Workspace\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"TaskActivity_workspaceId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskActivity_workspaceId_fkey",
+          "public",
+          "\"public\".\"TaskActivity\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.TaskActivity.TaskActivity_taskId_fkey",
+    "label": "Add foreign key \"TaskActivity_taskId_fkey\" on \"TaskActivity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "TaskActivity_taskId_fkey",
+        "table": "TaskActivity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"TaskActivity_taskId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskActivity_taskId_fkey",
+          "public",
+          "\"public\".\"TaskActivity\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"TaskActivity_taskId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"TaskActivity\"\nADD CONSTRAINT \"TaskActivity_taskId_fkey\"\nFOREIGN KEY (\"taskId\")\nREFERENCES \"public\".\"Task\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"TaskActivity_taskId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskActivity_taskId_fkey",
+          "public",
+          "\"public\".\"TaskActivity\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.TaskActivity.TaskActivity_actorId_fkey",
+    "label": "Add foreign key \"TaskActivity_actorId_fkey\" on \"TaskActivity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "TaskActivity_actorId_fkey",
+        "table": "TaskActivity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"TaskActivity_actorId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskActivity_actorId_fkey",
+          "public",
+          "\"public\".\"TaskActivity\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"TaskActivity_actorId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"TaskActivity\"\nADD CONSTRAINT \"TaskActivity_actorId_fkey\"\nFOREIGN KEY (\"actorId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"TaskActivity_actorId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskActivity_actorId_fkey",
+          "public",
+          "\"public\".\"TaskActivity\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.TaskAssignee.TaskAssignee_taskId_workspaceId_fkey",
+    "label": "Add foreign key \"TaskAssignee_taskId_workspaceId_fkey\" on \"TaskAssignee\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "TaskAssignee_taskId_workspaceId_fkey",
+        "table": "TaskAssignee"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"TaskAssignee_taskId_workspaceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskAssignee_taskId_workspaceId_fkey",
+          "public",
+          "\"public\".\"TaskAssignee\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"TaskAssignee_taskId_workspaceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"TaskAssignee\"\nADD CONSTRAINT \"TaskAssignee_taskId_workspaceId_fkey\"\nFOREIGN KEY (\"taskId\", \"workspaceId\")\nREFERENCES \"public\".\"Task\" (\"id\", \"workspaceId\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"TaskAssignee_taskId_workspaceId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskAssignee_taskId_workspaceId_fkey",
+          "public",
+          "\"public\".\"TaskAssignee\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.TaskAssignee.TaskAssignee_workspaceId_userId_fkey",
+    "label": "Add foreign key \"TaskAssignee_workspaceId_userId_fkey\" on \"TaskAssignee\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "TaskAssignee_workspaceId_userId_fkey",
+        "table": "TaskAssignee"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"TaskAssignee_workspaceId_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskAssignee_workspaceId_userId_fkey",
+          "public",
+          "\"public\".\"TaskAssignee\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"TaskAssignee_workspaceId_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"TaskAssignee\"\nADD CONSTRAINT \"TaskAssignee_workspaceId_userId_fkey\"\nFOREIGN KEY (\"workspaceId\", \"userId\")\nREFERENCES \"public\".\"WorkspaceMember\" (\"workspaceId\", \"userId\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"TaskAssignee_workspaceId_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "TaskAssignee_workspaceId_userId_fkey",
+          "public",
+          "\"public\".\"TaskAssignee\""
+        ]
+      }
+    ]
+  }
+]

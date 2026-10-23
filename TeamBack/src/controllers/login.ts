@@ -1,7 +1,7 @@
-import {Request , Response} from 'express'
-import { db } from '../prisma/db'
-import { verifyPassword } from '../utility/PassHass'
-import { setRefreshCookie , signAccessToken , issueRefreshToken} from '../utility/tokens'
+import {type Request , type Response} from 'express'
+import { db } from '../prisma/db.ts'
+import { verifyPassword } from '../utility/PassHass.ts'
+import { setRefreshCookie , signAccessToken , issueRefreshToken} from '../utility/tokens.ts'
 import dotenv from 'dotenv'
 dotenv.config();
 const Login = async function(req : Request , res: Response): Promise<void> {
@@ -64,10 +64,7 @@ const Login = async function(req : Request , res: Response): Promise<void> {
 
     const refreshtoken = await issueRefreshToken(user.id);
     
-    /**backend shape will be like {success: true, status: 200 , data : {user , accesstoekn } ,
-     *  message: "logged in successfull" }. like this this will be send by my srver , and in the error 
-     * case : {success: false , error: { message: , code : , status , details} */
-   
+
     
     // Return sanitized response (never return passwordHash)
      setRefreshCookie( res , refreshtoken )
