@@ -5,6 +5,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock,
+  FolderPlus,
   Layers,
   Sparkles,
   TrendingUp,
@@ -33,25 +34,16 @@ export const DashboardPage: React.FC = () => {
   const { workspace, isAdmin, role } = useCurrentWorkspace();
 
   const { data: workspacesData, isLoading: loadingWorkspaces } = useQuery({
-    queryKey: ['workspaces'],
-    queryFn: () => workspaceService.getWorkspaces(),
+    queryKey: ['workspaces', 1, 20],
+    queryFn: () => workspaceService.getWorkspaces(1, 20),
   });
 
   const { data: tasksData, isLoading: loadingTasks } = useQuery({
     queryKey: ['tasks', activeWorkspaceId],
     queryFn: () => taskService.getTasksByWorkspace(activeWorkspaceId),
+    // Only run if there's a real workspace selected
     enabled: Boolean(activeWorkspaceId),
   });
-
-
-   // Tell Agent to add A null securtiy freature for activeWorkspaceId , in case if there is not no local
-   // storage stored activeworkspace such as just sign up -> has no workspace.
-
-
-
-
-
-
 
   const allWorkspaces = workspacesData?.data || [];
   const currentTasks = tasksData?.data || [];
@@ -68,12 +60,58 @@ export const DashboardPage: React.FC = () => {
     .filter((t) => (t.priority === 'URGENT' || t.priority === 'HIGH') && t.status !== 'DONE')
     .slice(0, 4);
 
+  // ── No workspace state ────────────────────────────────────────────────────────
+  // Show a helpful empty state when:
+  //  1. User has no workspaces at all (just signed up, or was never invited), OR
+  //  2. No active workspace is selected (activeWorkspaceId is null)
+  const noWorkspacesAtAll = !loadingWorkspaces && allWorkspaces.length === 0;
+  const noActiveWorkspace = !activeWorkspaceId;
+
+  if (noWorkspacesAtAll || noActiveWorkspace) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 sm:p-12 text-center space-y-6">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand/10 border border-brand/20">
+          <FolderPlus className="h-8 w-8 text-brand" />
+        </div>
+        <div className="max-w-sm space-y-2">
+          <h2 className="text-xl sm:text-2xl font-bold font-heading text-ink tracking-tight">
+            {noWorkspacesAtAll
+              ? "You don't have any workspaces yet"
+              : 'No workspace selected'}
+          </h2>
+          <p className="text-sm text-ink-muted leading-relaxed">
+            {noWorkspacesAtAll
+              ? 'Create your first workspace to start managing tasks, inviting teammates, and tracking progress.'
+              : 'Select a workspace from the sidebar, or create a new one to get started.'}
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button onClick={openCreateWorkspaceModal} leftIcon={<FolderPlus className="h-4 w-4" />}>
+            Create a Workspace
+          </Button>
+          {!noWorkspacesAtAll && allWorkspaces.length > 0 && (
+            <Button variant="outline" onClick={() => navigate(`/workspace/${allWorkspaces[0].id}`)}>
+              Go to Workspace
+            </Button>
+          )}
+        </div>
+        {!noWorkspacesAtAll && (
+          <p className="text-xs text-ink-subtle">
+            You can also accept a workspace invitation from the{' '}
+            <span className="font-semibold text-ink">notification bell</span> in the top bar.
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // ── Normal dashboard view ──────────────────────────────────────────────────
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-150">
       {/* Top Banner / Welcome */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-line">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink font-heading">
               Workspace Overview
             </h1>
@@ -82,7 +120,8 @@ export const DashboardPage: React.FC = () => {
             </Badge>
           </div>
           <p className="mt-1 text-xs sm:text-sm text-ink-muted">
-            Viewing <span className="font-semibold text-ink">{workspace?.name || 'Workspace'}</span> sprint metrics and cross-team actions.
+            Viewing <span className="font-semibold text-ink">{workspace?.name || 'Workspace'}</span> sprint
+            metrics and cross-team actions.
           </p>
         </div>
 
@@ -94,7 +133,7 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* Summary Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           label="Total Tasks"
           value={loadingTasks ? '—' : totalTasks}
@@ -105,7 +144,7 @@ export const DashboardPage: React.FC = () => {
         <StatCard
           label="Completed"
           value={loadingTasks ? '—' : completedTasks}
-          subtext={totalTasks > 0 ? `${Math.round((completedTasks / totalTasks) * 100)}% of workload shipped` : '0%'}
+          subtext={totalTasks > 0 ? `${Math.round((completedTasks / totalTasks) * 100)}% shipped` : '0%'}
           icon={CheckCircle2}
           colorVariant="brand"
           trend={completedTasks > 0 ? '+12% this week' : undefined}
@@ -113,7 +152,7 @@ export const DashboardPage: React.FC = () => {
         <StatCard
           label="In Progress"
           value={loadingTasks ? '—' : inProgressTasks}
-          subtext={`${pendingTasks} total pending action`}
+          subtext={`${pendingTasks} total pending`}
           icon={Clock}
           colorVariant="warning"
         />
@@ -127,7 +166,7 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* Two Column Grid: Left Workspaces & Urgent Tasks, Right Activity Feed */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Left Column (Span 2) */}
         <div className="lg:col-span-2 space-y-8">
           {/* Workspaces Section */}
@@ -141,22 +180,28 @@ export const DashboardPage: React.FC = () => {
                   Switch between tenants to load segregated tasks, members, and channels.
                 </p>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={openCreateWorkspaceModal}
-              >
+              <Button variant="outline" size="sm" onClick={openCreateWorkspaceModal}>
                 + New Workspace
               </Button>
             </div>
 
             {loadingWorkspaces ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Skeleton className="h-44 w-full rounded-xl" />
                 <Skeleton className="h-44 w-full rounded-xl" />
               </div>
+            ) : allWorkspaces.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-line bg-surface-secondary/40 p-8 text-center space-y-3">
+                <FolderPlus className="h-8 w-8 mx-auto text-ink-subtle" />
+                <p className="text-xs font-medium text-ink-muted">
+                  No workspaces found. Create one to get started!
+                </p>
+                <Button size="sm" onClick={openCreateWorkspaceModal}>
+                  Create Workspace
+                </Button>
+              </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {allWorkspaces.map((ws) => (
                   <WorkspaceCard
                     key={ws.id}
@@ -187,7 +232,7 @@ export const DashboardPage: React.FC = () => {
                 onClick={() => navigate(`/workspace/${activeWorkspaceId}/tasks`)}
                 rightIcon={<ArrowRight className="h-3.5 w-3.5" />}
               >
-                View Kanban Board
+                View Board
               </Button>
             </div>
 
@@ -273,30 +318,34 @@ export const DashboardPage: React.FC = () => {
                 </button>
               )}
             </div>
-            <div className="space-y-2">
-              {workspace?.members.slice(0, 5).map((member) => (
-                <div key={member.userId} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Avatar
-                      name={member.user?.name || 'Member'}
-                      src={member.user?.image}
-                      size="xs"
-                    />
-                    <div className="min-w-0">
-                      <p className="truncate font-medium text-ink">{member.user?.name}</p>
-                      <p className="truncate text-[10px] text-ink-muted">{member.user?.title}</p>
+
+            {workspace?.members && workspace.members.length > 0 ? (
+              <div className="space-y-2">
+                {workspace.members.slice(0, 5).map((member) => (
+                  <div key={member.userId} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Avatar
+                        name={member.user?.name || 'Member'}
+                        src={member.user?.image}
+                        size="xs"
+                      />
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-ink">{member.user?.name || 'Member'}</p>
+                        <p className="truncate text-[10px] text-ink-muted">{member.user?.title || member.user?.email}</p>
+                      </div>
                     </div>
+                    <Badge variant={member.role === 'ADMIN' ? 'roleAdmin' : 'roleMember'} size="sm">
+                      {member.role}
+                    </Badge>
                   </div>
-                  <Badge variant={member.role === 'ADMIN' ? 'roleAdmin' : 'roleMember'} size="sm">
-                    {member.role}
-                  </Badge>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[11px] text-ink-muted text-center py-2">No members loaded yet.</p>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 };
-

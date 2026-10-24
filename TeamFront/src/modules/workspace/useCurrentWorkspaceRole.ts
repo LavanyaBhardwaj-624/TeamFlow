@@ -11,6 +11,7 @@ export function useCurrentWorkspace() {
   const query = useQuery({
     queryKey: ['workspace', activeWorkspaceId],
     queryFn: () => workspaceService.getWorkspaceById(activeWorkspaceId),
+    // Only fetch when there IS an active workspace (not null)
     enabled: Boolean(activeWorkspaceId),
   });
 
@@ -36,4 +37,3 @@ export function useCurrentWorkspace() {
     isAdmin,
   };
 }
-

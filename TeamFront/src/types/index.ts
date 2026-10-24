@@ -38,11 +38,13 @@ export interface WorkspaceInvitation {
   workspaceName: string;
   invitedBy: string;
   inviterName: string;
-  invitedUserId: string;
+  /** invitedUserId is available when the backend populates it (admin view) */
+  invitedUserId?: string;
   email: string;
   role: Role;
   status: InvitationStatus;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface Task {
@@ -75,10 +77,18 @@ export interface ApiResponse<T> {
   data: T;
   message?: string;
 }
-
+export interface pagination{
+  limit: string | number,
+  totalItems: string | number,
+  totalPage: string | number,
+  hasNextPage: boolean,
+  hasPreviousPage: boolean,  
+}
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;
+  message?: string,
+  pagination: pagination
 }
 
 export interface AuthSession {

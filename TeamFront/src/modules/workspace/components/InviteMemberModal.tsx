@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AlertCircle, CheckCircle2, Loader2, MailCheck } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
@@ -21,21 +22,41 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
   const { workspace } = useCurrentWorkspace();
   const { user } = useAuthStore();
 
+  // Fetch all known users (for the select dropdown)
   const { data: usersData } = useQuery({
     queryKey: ['users'],
     queryFn: () => authService.getAllUsers(),
   });
   const allUsers = usersData?.data || [];
 
-  // Filter out members who are already in the workspace
+  // Current workspace members
   const currentMemberIds = new Set(workspace?.members.map((m) => m.userId) || []);
-  const { data: pendingUserIds = [] } = useQuery({
+
+  // Fetch pending invitations for this workspace (now returns PaginatedResponse<WorkspaceInvitation>)
+  const { data: pendingInvitesData, isLoading: loadingPending } = useQuery({
     queryKey: ['workspace-pending-invites', workspace?.id],
-    queryFn: () => workspaceService.getPendingInvitedUserIds(workspace?.id || ''),
+    queryFn: () => workspaceService.getPendingInvitedUserIds(workspace?.id || '', 1, 100),
     enabled: Boolean(workspace?.id),
   });
-  const pendingIds = new Set(pendingUserIds);
-  const availableUsers = allUsers.filter((u) => !currentMemberIds.has(u.id) && !pendingIds.has(u.id));
+
+  // Extract the set of already-invited user IDs from the full invitation objects
+  const pendingIds = new Set(
+    (pendingInvitesData?.data || [])
+      .filter((inv) => inv.status === 'PENDING')
+      .map((inv) => {
+        // Backend may return invitedUserId or email; extract what's available
+        // WorkspaceInvitation type has `email` field – we match by email when userId not available
+        return (inv as any).invitedUserId ?? inv.email;
+      }),
+  );
+
+  // Filter to users not yet in workspace and not already invited
+  const availableUsers = allUsers.filter(
+    (u) =>
+      !currentMemberIds.has(u.id) &&
+      !pendingIds.has(u.id) &&
+      !pendingIds.has(u.email),
+  );
 
   const {
     register,
@@ -45,7 +66,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
   } = useForm<InviteMemberFormValues>({
     resolver: zodResolver(inviteMemberSchema),
     defaultValues: {
-      userId: availableUsers[0]?.id || '',
+      userId: '',
       role: 'MEMBER',
     },
   });
@@ -53,10 +74,12 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
   const mutation = useMutation({
     mutationFn: (values: InviteMemberFormValues) => {
       if (!workspace) throw new Error('No workspace selected');
-      return workspaceService.sendInvitation(workspace.id, workspace.slug, {
-        userId: values.userId,
-        role: values.role,
-      }, user?.id || '');
+      return workspaceService.sendInvitation(
+        workspace.id,
+        workspace.slug,
+        { userId: values.userId, role: values.role },
+        user?.id || '',
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspace', workspace?.id] });
@@ -68,31 +91,67 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
   });
 
   const onSubmit = (values: InviteMemberFormValues) => {
+    mutation.reset();
     mutation.mutate(values);
+  };
+
+  const handleClose = () => {
+    mutation.reset();
+    reset();
+    onClose();
   };
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title="Invite Team Member"
       description={`Add a collaborator to "${workspace?.name || 'Workspace'}".`}
       maxWidth="md"
     >
-      {mutation.data?.message && (
-        <p role="status" className="mb-4 rounded-lg border border-green-500/20 bg-green-500/5 px-3 py-2 text-xs text-green-700 dark:text-green-400">
-          {mutation.data.message}
-        </p>
+      {/* Success feedback */}
+      {mutation.isSuccess && mutation.data?.message && (
+        <div
+          role="status"
+          className="mb-4 flex items-center gap-2 rounded-lg border border-green-500/20 bg-green-500/5 px-3 py-2.5 text-xs text-green-700 dark:text-green-400"
+        >
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          <span>{mutation.data.message}</span>
+        </div>
       )}
+
+      {/* Error feedback */}
       {mutation.error && (
-        <p role="alert" className="mb-4 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-xs text-red-700 dark:text-red-400">
-          {mutation.error instanceof Error ? mutation.error.message : 'Unable to send invitation. Please try again.'}
-        </p>
+        <div
+          role="alert"
+          className="mb-4 flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2.5 text-xs text-red-700 dark:text-red-400"
+        >
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>
+            {mutation.error instanceof Error
+              ? mutation.error.message
+              : 'Unable to send invitation. Please try again.'}
+          </span>
+        </div>
+      )}
+
+      {/* Pending invites info badge */}
+      {!loadingPending && (pendingInvitesData?.data?.length ?? 0) > 0 && (
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
+          <MailCheck className="h-4 w-4 shrink-0" />
+          <span>
+            {pendingInvitesData!.data.length} pending invitation
+            {pendingInvitesData!.data.length !== 1 ? 's' : ''} already sent for this workspace.
+          </span>
+        </div>
       )}
 
       {availableUsers.length === 0 ? (
-        <div className="py-6 text-center text-xs text-ink-muted">
-          All team directory users are already members of this workspace.
+        <div className="py-8 text-center space-y-2">
+          <MailCheck className="h-8 w-8 mx-auto text-ink-subtle" />
+          <p className="text-xs font-medium text-ink-muted">
+            All known team members are already in this workspace or have pending invitations.
+          </p>
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -101,9 +160,10 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
             error={errors.userId?.message}
             {...register('userId')}
           >
+            <option value="">— Select a team member —</option>
             {availableUsers.map((u) => (
               <option key={u.id} value={u.id}>
-                {u.name} — {u.email} ({u.title})
+                {u.name} — {u.email}{u.title ? ` (${u.title})` : ''}
               </option>
             ))}
           </Select>
@@ -114,16 +174,16 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
             hint="Admins can invite members, delete tasks, and modify workspace settings."
             {...register('role')}
           >
-            <option value="MEMBER">Member (Create & edit assigned tasks)</option>
-            <option value="ADMIN">Admin (Full workspace permissions & task deletion)</option>
+            <option value="MEMBER">Member (Create &amp; edit assigned tasks)</option>
+            <option value="ADMIN">Admin (Full workspace permissions &amp; task deletion)</option>
           </Select>
 
           <div className="mt-6 flex items-center justify-end gap-2.5 pt-3 border-t border-line">
-            <Button type="button" variant="ghost" onClick={onClose}>
+            <Button type="button" variant="ghost" onClick={handleClose}>
               Cancel
             </Button>
             <Button type="submit" isLoading={mutation.isPending}>
-            Send Invitation
+              Send Invitation
             </Button>
           </div>
         </form>

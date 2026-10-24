@@ -31,7 +31,8 @@ export const WorkspacePage: React.FC = () => {
   const { openInviteMemberModal, openCreateTaskModal } = useAppShell();
   const { isAdmin, role } = useCurrentWorkspace();
 
-  const workspaceId = id || 'ws_core_eng';
+  // Use the route param; null means the URL had no :id which shouldn't happen in practice
+  const workspaceId = id ?? null;
 
   const {
     data: wsData,

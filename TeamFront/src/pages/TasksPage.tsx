@@ -41,7 +41,7 @@ export const TasksPage: React.FC = () => {
   const { workspace, isAdmin, role } = useCurrentWorkspace();
   const { user } = useAuthStore();
 
-  const activeId = routeWorkspaceId || workspace?.id || 'ws_core_eng';
+  const activeId = routeWorkspaceId || workspace?.id || null;
 
   // Search & Filter States
   const [searchQuery, setSearchQuery] = useState('');
