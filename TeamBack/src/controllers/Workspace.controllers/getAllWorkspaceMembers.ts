@@ -12,11 +12,11 @@ const AddMember = async (req: Request , res:Response , next: NextFunction ) : Pr
    const {workspaceId , ownerId , role }   = body
     try{
 
-            const member = await db.orm.public.WorkspaceMember.create({
-                workspaceId: workspaceId,
-                userId: ownerId,
-                role: "ADMIN"
-            })
+      const member = await db.orm.public.WorkspaceMember.create({
+          workspaceId: workspaceId,
+          userId: ownerId,
+          role: "ADMIN"
+        })
     }catch(err){
         
     }

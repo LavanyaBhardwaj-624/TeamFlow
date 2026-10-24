@@ -4,6 +4,7 @@ import cors from 'cors';
 import Auth_router from './src/routes/authroutes.ts'
 import redis from './src/config/redis.ts'
 import workspaceInvitationRouter from './src/routes/workspace.routes/workspaceInvitation.routes.ts'
+import workspaceOperationRouter from './src/routes/workspace.routes/workspaceOperation.routes.ts'
 const app = express();
 
 app.use(express.json());
@@ -16,7 +17,7 @@ app.use(cors({
 
 app.use( '/api/auth' , Auth_router);
 app.use('/api', workspaceInvitationRouter);
-
+app.use('/api', workspaceOperationRouter);
 
 const PORT = process.env.Server_Port || 3000;
 

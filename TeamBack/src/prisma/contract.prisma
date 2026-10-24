@@ -48,6 +48,7 @@ model User {
   name         String?
   passwordHash String
   title        String?
+  description  String?
   imageUrl    String?
   createdAt    Timestamptz(6) @default(now())
   
@@ -122,7 +123,7 @@ model Task {
   tags        String[]       @default([])
   dueAt       Timestamptz(6)?
   createdAt   Timestamptz(6) @default(now())
-  updatedAt   temporal.updatedAt()
+  updatedAt   temporal.updatedAt() 
 
   workspace Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   creator   User           @relation("TaskCreator", fields: [createdBy], references: [id], onDelete: Restrict)

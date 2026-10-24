@@ -747,6 +747,13 @@
                   }
                 }
               },
+              "description": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "email": {
                 "nullable": false,
                 "type": {
@@ -886,6 +893,9 @@
               "fields": {
                 "createdAt": {
                   "column": "createdAt"
+                },
+                "description": {
+                  "column": "description"
                 },
                 "email": {
                   "column": "email"
@@ -1982,6 +1992,11 @@
                     "precision": 6
                   }
                 },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
                 "email": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -2495,7 +2510,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "900cbc6a6b80b87ca20b79c91d9732994159f1df878a07d114b8ee96b51bc7eb"
+    "storageHash": "84514a773233becc1bb765e8c710a2bff9dfe4604116cbaf1592717f89024b02"
   },
   "execution": {
     "executionHash": "ac3740c08db07a153822d7b44a03174d3cb8760bc1a8a22f72639ad7398f5cac",

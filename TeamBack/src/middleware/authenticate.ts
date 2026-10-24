@@ -19,14 +19,25 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   // 1. Try the access token
   const accessToken = req.headers.authorization?.split(' ')[1]
  
-  if (accessToken) {
+  if(!accessToken){
+        res.status(401).json({
+            success: false , 
+            error:{
+            code: "AUTHENTICATION FAILED",
+            message: 'Access token is missed',
+            status: 401,
+          }     
+    })
+    return;
+  }
+ 
     try {
       const decoded = jwt.verify(accessToken, process.env.ACCESS_KEY as string) as JwtPayload
       req.userId = decoded.Id as string
       return next()
     } catch {
       // expired / invalid -> fall through to refresh token
-      res.status(401).json({
+       res.status(401).json({
             success: false , 
             error:{
             code: "AUTHENTICATION FAILED",
@@ -35,26 +46,27 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
             }
         });
     }
+    return;
   }
  
   // 2. Fall back to the refresh token (cookie)
-  const refreshToken: string | undefined = req.cookies?.refreshToken
-  if (!refreshToken) {
-    res.status(401).json({ message: 'Authentication failed' })
-    return
-  }
+//   const refreshToken: string | undefined = req.cookies?.refreshToken
+//   if (!refreshToken) {
+//     res.status(401).json({ message: 'Authentication failed' })
+//     return
+//   }
  
-  try {
-    // verifies signature, checks Redis, rotates the refresh token
-    const { userId, accessToken: newAccess, refreshToken: newRefresh } = await rotateRefreshToken(refreshToken)
+//   try {
+//     // verifies signature, checks Redis, rotates the refresh token
+//     const { userId, accessToken: newAccess, refreshToken: newRefresh } = await rotateRefreshToken(refreshToken)
  
-    setRefreshCookie(res, newRefresh)
-    res.setHeader('x-access-token', newAccess) // client should store & use this
-    req.userId = userId
-    return next()
-  } catch {
-    res.clearCookie('refreshToken')
-    res.status(401).json({ message: 'Authentication failed' })
-  }
-}
+//     setRefreshCookie(res, newRefresh)
+//     res.setHeader('x-access-token', newAccess) // client should store & use this
+//     req.userId = userId
+//     return next()
+//   } catch {
+//     res.clearCookie('refreshToken')
+//     res.status(401).json({ message: 'Authentication failed' })
+//   }
+// }
  

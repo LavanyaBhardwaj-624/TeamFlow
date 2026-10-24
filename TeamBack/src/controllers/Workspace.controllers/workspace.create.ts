@@ -1,6 +1,6 @@
 
 import {type NextFunction, type Request , type Response} from 'express'
-import { db } from '../../prisma/db';
+import { db } from '../../prisma/db.ts';
 import { workers } from 'node:cluster';
 
 const fail = (res: Response, status: number, message: string) => {
@@ -36,14 +36,14 @@ const createWorkspace = async (req: Request , res:Response , next: NextFunction 
     const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
     if (!slugRegex.test(slug))
      return fail(res, 400, "Invalid slug");
-    if( !ownerId ) return fail( res , 400 , "Please Login/Signup to create Workpsace");
+    if( !ownerId ) return fail( res , 401 , "Authentication required");
 
     
     const admin = await db.orm.public.User.where({
       id: ownerId
     }).first();
 
-    if(!admin) return fail(res , 404 , "  Workspace Creation failed");
+    if(!admin) return fail(res , 404 ,   "User not found");
 
     const existingWorkspace =
       await db.orm.public.Workspace.where({
@@ -53,7 +53,7 @@ const createWorkspace = async (req: Request , res:Response , next: NextFunction 
     if (existingWorkspace) {
       return fail(res, 409, "Workspace slug already exists");
     }
-  await db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
 
     const workspace = await tx.orm.public.Workspace.create({
       name,
@@ -75,18 +75,22 @@ const createWorkspace = async (req: Request , res:Response , next: NextFunction 
       description: `${admin.name} created workspace "${workspace.name}"`,
     });
 
-   return res.status(201).json({
+       return {
+         workspace,
+         member,
+         activity,
+       };
+
+  });
+
+   res.status(201).json({
       success: true,
       status: 201,
       message: `Workspace has been created Successfully`,
-      data: {
-         workspace: workspace,
-         member: member,
-         activity: activity,
-      },
+      data: result,
     });
 
-  });
+    return;
 
 } catch (error) {
    console.error(error);

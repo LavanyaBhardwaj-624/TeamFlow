@@ -33,7 +33,7 @@ const Login = async function(req : Request , res: Response): Promise<void> {
             }});
       return;
     }
-
+  try{
    const user = await db.orm.public.User.where({ email: email }).first();
     if(!user){
       res.status(401).json({
@@ -78,10 +78,26 @@ const Login = async function(req : Request , res: Response): Promise<void> {
         email: user.email,
         name: user.name,
         createdAt: user.createdAt,
+        title: user.title,
+        description: user.description,
+        image: user.imageUrl
         },
         accesstoken: accesstoken,
       },
     });
+
+  }catch(err: any){
+      console.log(`Login Page error -> ` + err)
+             res.status(500).json({
+              success: false , 
+              error:{
+              code: " SERVER_ERR",
+              message: "server error",
+              status: 500,
+             }
+            });            
+          
+  }
 }
 
 export default Login

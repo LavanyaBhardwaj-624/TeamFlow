@@ -4,35 +4,45 @@ import { hashPassword } from '../utility/PassHass.ts';
 import { setRefreshCookie , signAccessToken , issueRefreshToken} from '../utility/tokens.ts'
 
 import dotenv from 'dotenv'
+import { userInfo } from 'node:os';
+import { FAILOVER_MODES } from 'redis';
 dotenv.config()
 /**
  * Controller to handle user registration
  * Model: User (email, name, passwordHash)
  */
-const Signup = async function (req: Request, res: Response): Promise<void> {
-  try {
-    const { email, name, password } = req.body;
-
-    if (!email || typeof email !== 'string') {
-      res.status(400).json({
+const fail = (res: Response, status: number, message: string) => {
+        res.status(status).json({
             success: false , 
             error:{
-            code: "BAD INPUT",
-            message: 'Invalid Email',
-            status: 400,
+            code: "BAD_INPUT",
+            message: message,
+            status: status,
             }
         });
+};
+const Signup = async function (req: Request, res: Response): Promise<void> {
+  try {
+    const { email, name, password, title , description , image } = req.body;
+
+    if (!email || typeof email !== 'string') {
+          fail(res , 400 , "Invalid email")
       return;
     }
-
+    if (!name || typeof name !== 'string') {
+       fail( res , 400 , "invalid name")
+      return;
+    }
     if (!password || typeof password !== 'string' || password.length < 6) {
-      res.status(400).json({
-            success: false , 
-            error:{
-            code: "BAD INPUT",
-            message: 'Invalid Password',
-            status: 400,
-            }});
+       fail(res , 400 , "invalid Pasword");
+      return;
+    }
+    if(!title || typeof title !== "string"){
+      fail(res , 400 , "Invalid title");
+      return;
+    }
+    if(!description || typeof description !== "string"){
+      fail(res , 400 , "Invalid description");
       return;
     }
 
@@ -58,8 +68,9 @@ const Signup = async function (req: Request, res: Response): Promise<void> {
       email: email.toLowerCase(),
       name: name ?? null,
       passwordHash: passHashed,
-      title: "I am a dev",
-      imageUrl: "Src image",
+      title: title,
+      imageUrl: image,
+      description: description,
     });
 
     // generate access token:
@@ -80,6 +91,9 @@ const Signup = async function (req: Request, res: Response): Promise<void> {
         email: user.email,
         name: user.name,
         createdAt: user.createdAt,
+        title: user.title,
+        description: user.description,
+        image: user.imageUrl
         },
         accesstoken: accesstoken,
       },
