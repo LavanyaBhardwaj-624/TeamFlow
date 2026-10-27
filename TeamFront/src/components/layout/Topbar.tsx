@@ -11,7 +11,6 @@ import {
   Menu,
   Moon,
   Sun,
-  UserCheck,
   UserPlus,
 } from 'lucide-react';
 import { useAuthStore } from '@/modules/auth/useAuthStore';
@@ -19,9 +18,7 @@ import { useThemeStore } from '@/lib/theme';
 import { useCurrentWorkspace } from '@/modules/workspace/useCurrentWorkspaceRole';
 import { Avatar } from '@/components/common/Avatar';
 import { Badge } from '@/components/ui/Badge';
-import { mockUsers } from '@/config/mockData';
 import { ROUTES } from '@/config/routes';
-import { cn } from '@/lib/utils';
 import { workspaceService } from '@/services/workspace.service';
 
 interface TopbarProps {
@@ -31,7 +28,7 @@ interface TopbarProps {
 
 export const Topbar: React.FC<TopbarProps> = ({ onMobileMenuToggle, onOpenCreateTask }) => {
   const navigate = useNavigate();
-  const { user, logout, switchMockUser } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const queryClient = useQueryClient();
 
   // Fetch invitations for the current user (with pagination defaults)
@@ -102,9 +99,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMobileMenuToggle, onOpenCreate
           <span className="text-xs font-semibold text-ink truncate max-w-[140px] sm:max-w-[220px]">
             {workspace?.name || 'No Workspace'}
           </span>
-          <Badge variant={isAdmin ? 'roleAdmin' : 'roleMember'} size="sm">
-            {role}
-          </Badge>
+          {workspace && <Badge variant={isAdmin ? 'roleAdmin' : 'roleMember'} size="sm">{role}</Badge>}
         </div>
       </div>
 
@@ -143,7 +138,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMobileMenuToggle, onOpenCreate
           </button>
 
           {notificationOpen && (
-            <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-xl border border-line bg-surface shadow-dropdown animate-in fade-in zoom-in-95 duration-100 overflow-hidden">
+            <div className="absolute right-0 top-full mt-2 w-[min(20rem,calc(100vw-1.5rem))] sm:w-96 rounded-xl border border-line bg-surface shadow-dropdown animate-in fade-in zoom-in-95 duration-100 overflow-hidden">
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-line">
                 <span className="text-xs font-semibold text-ink">Notifications & Invitations</span>
@@ -269,47 +264,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMobileMenuToggle, onOpenCreate
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-semibold text-ink">{user?.name}</p>
                   <p className="truncate text-[11px] text-ink-muted">{user?.email}</p>
-                  <Badge variant={isAdmin ? 'roleAdmin' : 'roleMember'} size="sm" className="mt-1">
-                    {role} in current workspace
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Persona Switcher (for testing ADMIN vs MEMBER roles seamlessly) */}
-              <div className="p-2 border-b border-line">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-ink-subtle mb-1.5 flex items-center gap-1.5">
-                  <UserCheck className="w-3 h-3 text-brand" />
-                  <span>Switch Mock Persona</span>
-                </p>
-                <div className="space-y-1">
-                  {mockUsers.map((u) => {
-                    const isCurrent = u.id === user?.id;
-                    return (
-                      <button
-                        key={u.id}
-                        type="button"
-                        onClick={() => {
-                          switchMockUser(u);
-                          setUserMenuOpen(false);
-                        }}
-                        className={cn(
-                          'flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs transition-colors',
-                          isCurrent
-                            ? 'bg-brand/10 text-brand font-semibold'
-                            : 'text-ink hover:bg-surface-secondary',
-                        )}
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <Avatar name={u.name} src={u.image} size="xs" />
-                          <div className="text-left min-w-0">
-                            <p className="truncate text-xs">{u.name}</p>
-                            <p className="truncate text-[10px] text-ink-muted">{u.title}</p>
-                          </div>
-                        </div>
-                        {isCurrent && <span className="text-[10px] text-brand font-bold">Active</span>}
-                      </button>
-                    );
-                  })}
+                  {workspace && <Badge variant={isAdmin ? 'roleAdmin' : 'roleMember'} size="sm" className="mt-1">{role} in current workspace</Badge>}
                 </div>
               </div>
 

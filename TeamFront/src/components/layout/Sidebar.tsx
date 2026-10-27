@@ -17,6 +17,7 @@ import { useWorkspaceStore } from '@/modules/workspace/useWorkspaceStore';
 import { ROUTES } from '@/config/routes';
 import { cn } from '@/lib/utils';
 import { useCurrentWorkspace } from '@/modules/workspace/useCurrentWorkspaceRole';
+import { useAuthStore } from '@/modules/auth/useAuthStore';
 import { Badge } from '@/components/ui/Badge';
 
 interface SidebarProps {
@@ -34,6 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const { activeWorkspaceId } = useWorkspaceStore();
   const { role, isAdmin } = useCurrentWorkspace();
+  const { user } = useAuthStore();
 
   const navItems = [
     {
@@ -92,10 +94,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         />
         {!collapsed && (
           <div className="mt-2.5 flex items-center justify-between px-1">
-            <span className="text-[11px] font-medium text-ink-muted">Your Role:</span>
-            <Badge variant={isAdmin ? 'roleAdmin' : 'roleMember'} size="sm">
-              {role}
-            </Badge>
+            <span className="text-[11px] font-medium text-ink-muted">{activeWorkspaceId ? 'Your Role:' : 'Your Title:'}</span>
+            <Badge variant={activeWorkspaceId ? (isAdmin ? 'roleAdmin' : 'roleMember') : 'primary'} size="sm">{activeWorkspaceId ? role : (user?.title || 'Team member')}</Badge>
           </div>
         )}
       </div>

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { authService, LoginCredentials, SignupCredentials } from '@/services/auth.service';
-import { AuthSession, User } from '@/types';
+import { User } from '@/types';
 
 interface AuthState {
   user: User | null;
@@ -14,7 +14,6 @@ interface AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
   signup: (credentials: SignupCredentials) => Promise<void>;
   logout: () => Promise<void>;
-  switchMockUser: (user: User) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -92,12 +91,4 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  switchMockUser: (user: User) => {
-    const session: AuthSession = {
-      user,
-      token: `mock_jwt_${user.id}_switched`,
-    };
-    // Kept strictly in Zustand memory (no localStorage)
-    set({ user, token: session.token, isAuthenticated: true });
-  },
 }));

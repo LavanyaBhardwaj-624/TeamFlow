@@ -1,5 +1,4 @@
-import { authClient, refreshClient, getErrorMessage } from '@/lib/api';
-import { mockUsers } from '@/config/mockData';
+import { authClient, refreshClient, apiClient, getErrorMessage } from '@/lib/api';
 import { ApiResponse, AuthSession, User } from '@/types';
 
 export interface LoginCredentials {
@@ -11,6 +10,15 @@ export interface SignupCredentials {
   name: string;
   email: string;
   password: string;
+  title?: string;
+  description?: string
+}
+
+export interface ProfileUpdate {
+  name?: string;
+  title?: string;
+  description?: string;
+  image?: string;
 }
 
 export interface BackendAuthData {
@@ -21,6 +29,8 @@ export interface BackendAuthData {
     createdAt?: string;
     image?: string;
     title?: string;
+    description?: string;
+    imageUrl?: string;
   };
   accesstoken?: string;
   accessToken?: string;
@@ -48,9 +58,10 @@ function mapBackendAuthData(data: BackendAuthData): AuthSession {
     name: userName,
     email: rawUser.email,
     image:
-      rawUser.image ||
+      rawUser.image || rawUser.imageUrl ||
       `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(userName)}`,
-    title: rawUser.title || 'Product Collaborator',
+    title: rawUser.title || "Product Collaborator",
+    description: rawUser.description || '',
     createdAt: rawUser.createdAt,
   };
 
@@ -67,6 +78,7 @@ class AuthService {
    */
   async login(credentials: LoginCredentials): Promise<ApiResponse<AuthSession>> {
     try {
+      console.log("login api called")
       const res = await authClient.post<BackendAuthResponse>('/login', {
         email: credentials.email.trim().toLowerCase(),
         password: credentials.password,
@@ -92,6 +104,8 @@ class AuthService {
         name: credentials.name.trim(),
         email: credentials.email.trim().toLowerCase(),
         password: credentials.password,
+        title: credentials.title,
+        description: credentials.description
       });
 
       const session = mapBackendAuthData(res.data.data ?? {});
@@ -155,9 +169,25 @@ class AuthService {
     return { data: null, message: 'Logged out successfully' };
   }
 
-  // User directory remains mock-backed until the users endpoint is connected.
-  async getAllUsers(): Promise<ApiResponse<User[]>> {
-    return { data: [...mockUsers] };
+  async updateProfile(update: ProfileUpdate): Promise<ApiResponse<User>> {
+    try {
+      const response = await apiClient.patch<{ data: { user: User } }>('/api/auth/profile', update);
+      return { data: response.data.data.user };
+    } catch (err) {
+      throw new Error(getErrorMessage(err, 'Failed to update profile.'));
+    }
+  }
+
+  async getAllUsers(query = ''): Promise<ApiResponse<User[]>> {
+    const params = query.trim() ? `?q=${encodeURIComponent(query.trim())}&limit=20` : '?limit=100';
+    try {
+      // User search is an authenticated application request. Use apiClient so
+      // the current access token is attached by its request interceptor.
+      const response = await apiClient.get<{ data: User[] }>(`/api/auth/getAllUsers${params}`);
+      return { data: response.data.data };
+    } catch (err) {
+      throw new Error(getErrorMessage(err, 'Failed to load users.'));
+    }
   }
 
 }

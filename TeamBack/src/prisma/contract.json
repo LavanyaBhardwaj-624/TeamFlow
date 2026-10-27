@@ -4,6 +4,22 @@
   "target": "postgres",
   "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
   "roots": {
+    "ChannelMember": {
+      "model": "ChannelMember",
+      "namespace": "public"
+    },
+    "ChatChannel": {
+      "model": "ChatChannel",
+      "namespace": "public"
+    },
+    "JoinRequest": {
+      "model": "JoinRequest",
+      "namespace": "public"
+    },
+    "Message": {
+      "model": "Message",
+      "namespace": "public"
+    },
     "Task": {
       "model": "Task",
       "namespace": "public"
@@ -94,6 +110,32 @@
               }
             ]
           },
+          "ChannelRole": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "OWNER",
+                "value": "OWNER"
+              },
+              {
+                "name": "MEMBER",
+                "value": "MEMBER"
+              }
+            ]
+          },
+          "ChannelType": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "PUBLIC",
+                "value": "PUBLIC"
+              },
+              {
+                "name": "PRIVATE",
+                "value": "PRIVATE"
+              }
+            ]
+          },
           "InvitationStatus": {
             "codecId": "pg/text@1",
             "members": [
@@ -116,6 +158,23 @@
               {
                 "name": "REVOKED",
                 "value": "REVOKED"
+              }
+            ]
+          },
+          "RequestStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "PENDING",
+                "value": "PENDING"
+              },
+              {
+                "name": "APPROVED",
+                "value": "APPROVED"
+              },
+              {
+                "name": "DECLINED",
+                "value": "DECLINED"
               }
             ]
           },
@@ -176,6 +235,554 @@
           }
         },
         "models": {
+          "ChannelMember": {
+            "fields": {
+              "channelId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "joinedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 6
+                  }
+                }
+              },
+              "memberId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "role": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "ChannelRole",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "workspaceId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "channel": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "channelId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "ChatChannel",
+                  "namespace": "public"
+                }
+              },
+              "membership": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "workspaceId",
+                    "memberId"
+                  ],
+                  "targetFields": [
+                    "workspaceId",
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "WorkspaceMember",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "channelId": {
+                  "column": "channelId"
+                },
+                "joinedAt": {
+                  "column": "joinedAt"
+                },
+                "memberId": {
+                  "column": "memberId"
+                },
+                "role": {
+                  "column": "role"
+                },
+                "workspaceId": {
+                  "column": "workspaceId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "ChannelMember"
+            }
+          },
+          "ChatChannel": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 6
+                  }
+                }
+              },
+              "createdBy": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "description": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "isDefault": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "type": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "ChannelType",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "workspaceId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "creator": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "createdBy"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "joinRequests": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "channelId"
+                  ]
+                },
+                "to": {
+                  "model": "JoinRequest",
+                  "namespace": "public"
+                }
+              },
+              "members": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "channelId"
+                  ]
+                },
+                "to": {
+                  "model": "ChannelMember",
+                  "namespace": "public"
+                }
+              },
+              "messages": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "channelId"
+                  ]
+                },
+                "to": {
+                  "model": "Message",
+                  "namespace": "public"
+                }
+              },
+              "workspace": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Workspace",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "createdBy": {
+                  "column": "createdBy"
+                },
+                "description": {
+                  "column": "description"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "isDefault": {
+                  "column": "isDefault"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "type": {
+                  "column": "type"
+                },
+                "workspaceId": {
+                  "column": "workspaceId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "ChatChannel"
+            }
+          },
+          "JoinRequest": {
+            "fields": {
+              "channelId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 6
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "responseAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 6
+                  }
+                }
+              },
+              "responseBy": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "senderId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "RequestStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              }
+            },
+            "relations": {
+              "channel": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "channelId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "ChatChannel",
+                  "namespace": "public"
+                }
+              },
+              "responder": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "responseBy"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "sender": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "senderId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "channelId": {
+                  "column": "channelId"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "responseAt": {
+                  "column": "responseAt"
+                },
+                "responseBy": {
+                  "column": "responseBy"
+                },
+                "senderId": {
+                  "column": "senderId"
+                },
+                "status": {
+                  "column": "status"
+                }
+              },
+              "namespaceId": "public",
+              "table": "JoinRequest"
+            }
+          },
+          "Message": {
+            "fields": {
+              "channelId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "content": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 6
+                  }
+                }
+              },
+              "deletedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 6
+                  }
+                }
+              },
+              "editedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 6
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "senderId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "channel": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "channelId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "ChatChannel",
+                  "namespace": "public"
+                }
+              },
+              "sender": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "senderId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "channelId": {
+                  "column": "channelId"
+                },
+                "content": {
+                  "column": "content"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "deletedAt": {
+                  "column": "deletedAt"
+                },
+                "editedAt": {
+                  "column": "editedAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "senderId": {
+                  "column": "senderId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Message"
+            }
+          },
           "Task": {
             "fields": {
               "createdAt": {
@@ -813,6 +1420,21 @@
                   "namespace": "public"
                 }
               },
+              "chatChannels": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "createdBy"
+                  ]
+                },
+                "to": {
+                  "model": "ChatChannel",
+                  "namespace": "public"
+                }
+              },
               "invitationsSent": {
                 "cardinality": "1:N",
                 "on": {
@@ -828,6 +1450,21 @@
                   "namespace": "public"
                 }
               },
+              "joinRequests": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "senderId"
+                  ]
+                },
+                "to": {
+                  "model": "JoinRequest",
+                  "namespace": "public"
+                }
+              },
               "memberships": {
                 "cardinality": "1:N",
                 "on": {
@@ -840,6 +1477,36 @@
                 },
                 "to": {
                   "model": "WorkspaceMember",
+                  "namespace": "public"
+                }
+              },
+              "messages": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "senderId"
+                  ]
+                },
+                "to": {
+                  "model": "Message",
+                  "namespace": "public"
+                }
+              },
+              "responsesHandled": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "responseBy"
+                  ]
+                },
+                "to": {
+                  "model": "JoinRequest",
                   "namespace": "public"
                 }
               },
@@ -969,6 +1636,21 @@
               }
             },
             "relations": {
+              "chatChannels": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "workspaceId"
+                  ]
+                },
+                "to": {
+                  "model": "ChatChannel",
+                  "namespace": "public"
+                }
+              },
               "creator": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -1012,6 +1694,21 @@
                 },
                 "to": {
                   "model": "WorkspaceMember",
+                  "namespace": "public"
+                }
+              },
+              "taskActivities": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "workspaceId"
+                  ]
+                },
+                "to": {
+                  "model": "TaskActivity",
                   "namespace": "public"
                 }
               },
@@ -1295,6 +1992,23 @@
               }
             },
             "relations": {
+              "channelMemberships": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "workspaceId",
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "workspaceId",
+                    "memberId"
+                  ]
+                },
+                "to": {
+                  "model": "ChannelMember",
+                  "namespace": "public"
+                }
+              },
               "taskAssignments": {
                 "cardinality": "1:N",
                 "on": {
@@ -1376,6 +2090,613 @@
       "public": {
         "entries": {
           "table": {
+            "ChannelMember": {
+              "checks": [
+                {
+                  "expression": "\"role\" IN ('OWNER', 'MEMBER')",
+                  "name": "ChannelMember_role_check_bbc4be0d",
+                  "prefix": "ChannelMember_role_check"
+                }
+              ],
+              "columns": {
+                "channelId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "joinedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 6
+                  }
+                },
+                "memberId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "role": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "MEMBER"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "ChannelRole",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "workspaceId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "ChannelMember_channelId_idx_166d3598"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "channelId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ChannelMember"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ChatChannel"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "ChannelMember_workspaceId_memberId_idx_1f4f03c4"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "workspaceId",
+                      "memberId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ChannelMember"
+                  },
+                  "target": {
+                    "columns": [
+                      "workspaceId",
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "WorkspaceMember"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "channelId"
+                  ],
+                  "name": "ChannelMember_channelId_idx_166d3598",
+                  "prefix": "ChannelMember_channelId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "memberId"
+                  ],
+                  "name": "ChannelMember_memberId_idx_76b3c263",
+                  "prefix": "ChannelMember_memberId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "workspaceId",
+                    "memberId"
+                  ],
+                  "name": "ChannelMember_workspaceId_memberId_idx_1f4f03c4",
+                  "prefix": "ChannelMember_workspaceId_memberId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "channelId",
+                  "memberId"
+                ]
+              },
+              "uniques": []
+            },
+            "ChatChannel": {
+              "checks": [
+                {
+                  "expression": "\"type\" IN ('PUBLIC', 'PRIVATE')",
+                  "name": "ChatChannel_type_check_1d386f6e",
+                  "prefix": "ChatChannel_type_check"
+                }
+              ],
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 6
+                  }
+                },
+                "createdBy": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "isDefault": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "type": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "PUBLIC"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "ChannelType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "workspaceId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "ChatChannel_workspaceId_idx_ba65f874"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "workspaceId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ChatChannel"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Workspace"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "ChatChannel_createdBy_idx_ba0f792f"
+                  },
+                  "onDelete": "restrict",
+                  "source": {
+                    "columns": [
+                      "createdBy"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ChatChannel"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "createdBy"
+                  ],
+                  "name": "ChatChannel_createdBy_idx_ba0f792f",
+                  "prefix": "ChatChannel_createdBy_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "workspaceId",
+                    "createdAt"
+                  ],
+                  "name": "ChatChannel_workspaceId_createdAt_idx_5ff7e893",
+                  "prefix": "ChatChannel_workspaceId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "workspaceId"
+                  ],
+                  "name": "ChatChannel_workspaceId_idx_ba65f874",
+                  "prefix": "ChatChannel_workspaceId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "workspaceId",
+                    "name"
+                  ]
+                },
+                {
+                  "columns": [
+                    "id",
+                    "workspaceId"
+                  ]
+                }
+              ]
+            },
+            "JoinRequest": {
+              "checks": [
+                {
+                  "expression": "\"status\" IN ('PENDING', 'APPROVED', 'DECLINED')",
+                  "name": "JoinRequest_status_check_ec66e8d4",
+                  "prefix": "JoinRequest_status_check"
+                }
+              ],
+              "columns": {
+                "channelId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 6
+                  }
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "responseAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 6
+                  }
+                },
+                "responseBy": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": true
+                },
+                "senderId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "PENDING"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "RequestStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "JoinRequest_channelId_idx_166d3598"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "channelId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "JoinRequest"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ChatChannel"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "JoinRequest_senderId_idx_4689c490"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "senderId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "JoinRequest"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "JoinRequest_responseBy_idx_88dc1ef8"
+                  },
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "responseBy"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "JoinRequest"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "channelId"
+                  ],
+                  "name": "JoinRequest_channelId_idx_166d3598",
+                  "prefix": "JoinRequest_channelId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "channelId",
+                    "status",
+                    "createdAt"
+                  ],
+                  "name": "JoinRequest_channelId_status_createdAt_idx_8ee7fb9a",
+                  "prefix": "JoinRequest_channelId_status_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "responseBy"
+                  ],
+                  "name": "JoinRequest_responseBy_idx_88dc1ef8",
+                  "prefix": "JoinRequest_responseBy_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "senderId",
+                    "createdAt"
+                  ],
+                  "name": "JoinRequest_senderId_createdAt_idx_ed252b01",
+                  "prefix": "JoinRequest_senderId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "senderId"
+                  ],
+                  "name": "JoinRequest_senderId_idx_4689c490",
+                  "prefix": "JoinRequest_senderId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Message": {
+              "columns": {
+                "channelId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "content": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 6
+                  }
+                },
+                "deletedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 6
+                  }
+                },
+                "editedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 6
+                  }
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "senderId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Message_channelId_idx_166d3598"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "channelId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Message"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ChatChannel"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Message_senderId_idx_4689c490"
+                  },
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "senderId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Message"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "channelId",
+                    "createdAt",
+                    "id"
+                  ],
+                  "name": "Message_channelId_createdAt_id_idx_bd37c14e",
+                  "prefix": "Message_channelId_createdAt_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "channelId"
+                  ],
+                  "name": "Message_channelId_idx_166d3598",
+                  "prefix": "Message_channelId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "senderId",
+                    "createdAt"
+                  ],
+                  "name": "Message_senderId_createdAt_idx_ed252b01",
+                  "prefix": "Message_senderId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "senderId"
+                  ],
+                  "name": "Message_senderId_idx_4689c490",
+                  "prefix": "Message_senderId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "Task": {
               "checks": [
                 {
@@ -2469,6 +3790,20 @@
                 "TASK_DELETED"
               ]
             },
+            "ChannelRole": {
+              "kind": "valueSet",
+              "values": [
+                "OWNER",
+                "MEMBER"
+              ]
+            },
+            "ChannelType": {
+              "kind": "valueSet",
+              "values": [
+                "PUBLIC",
+                "PRIVATE"
+              ]
+            },
             "InvitationStatus": {
               "kind": "valueSet",
               "values": [
@@ -2477,6 +3812,14 @@
                 "DECLINED",
                 "EXPIRED",
                 "REVOKED"
+              ]
+            },
+            "RequestStatus": {
+              "kind": "valueSet",
+              "values": [
+                "PENDING",
+                "APPROVED",
+                "DECLINED"
               ]
             },
             "TaskPriority": {
@@ -2510,12 +3853,45 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "84514a773233becc1bb765e8c710a2bff9dfe4604116cbaf1592717f89024b02"
+    "storageHash": "74680b649b452002b3f8f76585bdae4b14b39032d87213c2e2936b8bbf45fbf8"
   },
   "execution": {
-    "executionHash": "ac3740c08db07a153822d7b44a03174d3cb8760bc1a8a22f72639ad7398f5cac",
+    "executionHash": "9688489e09b78c6eafca8cc5690d45a7b92e678e17736c9ffba2e195dc2e18b0",
     "mutations": {
       "defaults": [
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "ChatChannel",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "JoinRequest",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Message",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
         {
           "onCreate": {
             "id": "uuidv4",

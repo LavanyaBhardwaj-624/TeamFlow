@@ -113,17 +113,17 @@ export const ChatPage: React.FC = () => {
   return (
     <div className="flex h-full overflow-hidden">
       {/* Channels Sidebar Column */}
-      <div className="w-56 sm:w-64 border-r border-line bg-surface/70 flex flex-col shrink-0 select-none">
+      <div className="w-14 shrink-0 border-r border-line bg-surface/70 flex flex-col select-none sm:w-64">
         <div className="p-4 border-b border-line flex items-center justify-between">
-          <div>
-            <h2 className="text-xs font-bold uppercase tracking-wider text-ink font-heading">
+          <div className="min-w-0 sm:block">
+            <h2 className="hidden text-xs font-bold uppercase tracking-wider text-ink font-heading sm:block">
               Channels
             </h2>
-            <p className="text-[11px] text-ink-muted truncate">
+            <p className="hidden text-[11px] text-ink-muted truncate sm:block">
               {workspace?.name || 'Workspace'}
             </p>
           </div>
-          <Badge variant="secondary" size="sm">
+          <Badge variant="secondary" size="sm" className="hidden sm:inline-flex">
             Beta
           </Badge>
         </div>
@@ -143,7 +143,7 @@ export const ChatPage: React.FC = () => {
                 }`}
               >
                 <Hash className="w-3.5 h-3.5 shrink-0" />
-                <span className="truncate">{ch.name}</span>
+                <span className="hidden truncate sm:inline">{ch.name}</span>
               </button>
             );
           })}
@@ -151,12 +151,12 @@ export const ChatPage: React.FC = () => {
 
         {/* Socket.IO client status pill */}
         <div className="p-3 border-t border-line text-[11px] text-ink-muted flex items-center justify-between bg-surface-secondary/40">
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 sm:max-w-none">
             <Radio className={`w-3 h-3 ${isConnected ? 'text-brand' : 'text-amber-500'}`} />
-            <span>Socket Stub</span>
+            <span className="hidden sm:inline">Socket Stub</span>
           </span>
           <span className="font-mono text-[10px] text-ink-subtle">
-            {isConnected ? 'connected' : 'ready (dormant)'}
+            <span className="hidden sm:inline">{isConnected ? 'connected' : 'ready (dormant)'}</span>
           </span>
         </div>
       </div>
@@ -164,7 +164,7 @@ export const ChatPage: React.FC = () => {
       {/* Chat Messages Stream Column */}
       <div className="flex-1 flex flex-col min-w-0 bg-surface">
         {/* Channel Header */}
-        <div className="h-14 border-b border-line px-6 flex items-center justify-between shrink-0">
+        <div className="flex min-h-14 shrink-0 items-center justify-between gap-2 border-b border-line px-3 sm:px-6">
           <div className="flex items-center gap-2 min-w-0">
             <Hash className="w-4 h-4 text-ink-muted shrink-0" />
             <h3 className="text-sm font-semibold text-ink truncate font-heading">
@@ -183,7 +183,7 @@ export const ChatPage: React.FC = () => {
         </div>
 
         {/* Message Stream */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+        <div className="flex-1 overflow-y-auto p-3 space-y-5 sm:p-6">
           <div className="rounded-xl border border-dashed border-line p-4 text-center text-xs text-ink-muted bg-surface-secondary/30">
             <p className="font-semibold text-ink">Welcome to #{currentChannel.name}!</p>
             <p className="mt-0.5 text-[11px] text-ink-subtle">
@@ -195,7 +195,7 @@ export const ChatPage: React.FC = () => {
             <div key={msg.id} className="flex items-start gap-3 group">
               <Avatar name={msg.senderName} src={msg.senderAvatar} size="md" />
               <div className="flex-1 min-w-0">
-                <div className="flex items-baseline gap-2">
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                   <span className="text-xs font-semibold text-ink">{msg.senderName}</span>
                   <span className="text-[10px] text-ink-subtle">{msg.senderTitle}</span>
                   <span className="text-[10px] text-ink-subtle">{msg.timestamp}</span>

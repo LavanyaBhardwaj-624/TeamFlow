@@ -1,0 +1,86 @@
+[
+  {
+    "id": "column.public.ChannelMember.role",
+    "label": "Add column \"role\" to \"ChannelMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "role",
+        "table": "ChannelMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"role\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "ChannelMember",
+          "role"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"role\"",
+        "sql": "ALTER TABLE \"public\".\"ChannelMember\" ADD COLUMN \"role\" text DEFAULT 'MEMBER' NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"role\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "ChannelMember",
+          "role"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.ChannelMember.ChannelMember_role_check_bbc4be0d",
+    "label": "Add check constraint \"ChannelMember_role_check_bbc4be0d\" on \"ChannelMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "ChannelMember_role_check_bbc4be0d",
+        "table": "ChannelMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ChannelMember_role_check_bbc4be0d\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChannelMember_role_check_bbc4be0d",
+          "public",
+          "\"public\".\"ChannelMember\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"ChannelMember_role_check_bbc4be0d\"",
+        "sql": "ALTER TABLE \"public\".\"ChannelMember\" ADD CONSTRAINT \"ChannelMember_role_check_bbc4be0d\" CHECK (\"role\" IN ('OWNER', 'MEMBER'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"ChannelMember_role_check_bbc4be0d\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChannelMember_role_check_bbc4be0d",
+          "public",
+          "\"public\".\"ChannelMember\""
+        ]
+      }
+    ]
+  }
+]

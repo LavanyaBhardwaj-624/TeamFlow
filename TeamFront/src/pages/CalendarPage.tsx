@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  Filter,
   Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -17,7 +16,7 @@ import { TASK_PRIORITY_CONFIG } from '@/config/constants';
 export const CalendarPage: React.FC = () => {
   const { workspace } = useCurrentWorkspace();
   const { openCreateTaskModal } = useAppShell();
-  const [currentMonth, setCurrentMonth] = useState('October 2026');
+  const [currentDate, setCurrentDate] = useState(() => new Date());
 
   const { data: tasksData } = useQuery({
     queryKey: ['tasks', workspace?.id],
@@ -27,9 +26,11 @@ export const CalendarPage: React.FC = () => {
 
   const tasks = tasksData?.data || [];
 
-  // Sample calendar grid for October 2026 (starts on Thursday)
-  const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
-  const leadingBlanks = [null, null, null]; // Oct 1, 2026 starts on Thursday (Mon=0, Tue=1, Wed=2, Thu=3)
+  const currentMonth = currentDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+  const daysInMonth = Array.from({ length: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate() }, (_, i) => i + 1);
+  const leadingBlanks = Array.from({ length: (new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay() + 6) % 7 });
+  const moveMonth = (amount: number) => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + amount, 1));
+  const todayKey = new Date().toDateString();
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
@@ -49,20 +50,20 @@ export const CalendarPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center rounded-lg border border-line bg-surface p-1">
+        <div className="flex w-full flex-wrap items-center gap-2.5 sm:w-auto">
+          <div className="flex min-w-0 flex-1 items-center justify-center rounded-lg border border-line bg-surface p-1 sm:flex-none">
             <button
               type="button"
               className="p-1 text-ink-muted hover:text-ink rounded transition-colors"
-              title="Previous month"
+              title="Previous month" onClick={() => moveMonth(-1)}
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="px-3 text-xs font-semibold text-ink">{currentMonth}</span>
+            <span className="truncate px-2 text-xs font-semibold text-ink sm:px-3">{currentMonth}</span>
             <button
               type="button"
               className="p-1 text-ink-muted hover:text-ink rounded transition-colors"
-              title="Next month"
+              title="Next month" onClick={() => moveMonth(1)}
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -71,6 +72,7 @@ export const CalendarPage: React.FC = () => {
           <Button
             size="sm"
             onClick={openCreateTaskModal}
+            disabled={!workspace}
             leftIcon={<Plus className="w-4 h-4" />}
           >
             Add Task
@@ -79,7 +81,8 @@ export const CalendarPage: React.FC = () => {
       </div>
 
       {/* Calendar Grid Container */}
-      <div className="rounded-xl border border-line bg-surface overflow-hidden shadow-subtle">
+      <div className="overflow-x-auto rounded-xl border border-line bg-surface shadow-subtle">
+        <div className="min-w-[620px] overflow-hidden">
         {/* Days of Week Header */}
         <div className="grid grid-cols-7 border-b border-line bg-surface-secondary/50 text-center text-xs font-semibold text-ink-muted py-2.5">
           <span>Mon</span>
@@ -102,10 +105,10 @@ export const CalendarPage: React.FC = () => {
             const dayTasks = tasks.filter((t) => {
               if (!t.dueDate) return false;
               const d = new Date(t.dueDate);
-              return d.getDate() === day;
+              return d.getFullYear() === currentDate.getFullYear() && d.getMonth() === currentDate.getMonth() && d.getDate() === day;
             });
 
-            const isToday = day === 16;
+            const isToday = new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toDateString() === todayKey;
 
             return (
               <div
@@ -154,6 +157,7 @@ export const CalendarPage: React.FC = () => {
               </div>
             );
           })}
+        </div>
         </div>
       </div>
     </div>

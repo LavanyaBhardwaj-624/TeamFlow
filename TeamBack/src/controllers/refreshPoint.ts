@@ -38,16 +38,20 @@ export const newRefresh = async (req: Request, res: Response): Promise<void> => 
     setRefreshCookie(res, newRefresh)
 
     const user = await db.orm.public.User.where({ id: userId}).first();
+    if (!user) { res.clearCookie('refreshToken'); res.status(401).json({ success: false, error: { code: 'AUTHENTICATION_FAILED', message: 'User session is invalid', status: 401 } }); return; }
     res.status(200).json({
       success: true,
       status: 201,
       message: 'Authenticate Successful',
       data: {
         user:{
-        id: user?.id,
-        email: user?.email,
-        name: user?.name,
-        createdAt: user?.createdAt,
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        createdAt: user.createdAt,
+        title: user.title,
+        description: user.description,
+        image: user.imageUrl,
         },
         accesstoken: newAccess
       },

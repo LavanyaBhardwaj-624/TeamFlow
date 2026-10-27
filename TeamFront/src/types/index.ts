@@ -10,14 +10,16 @@ export interface User {
   email: string;
   image?: string;
   title?: string;
+  description?: string;
   createdAt?: string;
 }
+
 
 export interface WorkspaceMember {
   userId: string;
   role: Role;
   joinedAt?: string;
-  user?: User; // Populated representation
+  user?: User;
 }
 
 export interface Workspace {
@@ -78,9 +80,11 @@ export interface ApiResponse<T> {
   message?: string;
 }
 export interface pagination{
+  page?: number,
   limit: string | number,
   totalItems: string | number,
-  totalPage: string | number,
+  totalPage?: string | number,
+  totalPages?: string | number,
   hasNextPage: boolean,
   hasPreviousPage: boolean,  
 }
@@ -88,7 +92,7 @@ export interface PaginatedResponse<T> {
   data: T[];
   total: number;
   message?: string,
-  pagination: pagination
+  pagination?: pagination
 }
 
 export interface AuthSession {

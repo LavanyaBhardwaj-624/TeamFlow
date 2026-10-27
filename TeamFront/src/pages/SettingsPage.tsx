@@ -61,7 +61,7 @@ export const SettingsPage: React.FC = () => {
 
       {/* Workspace General Info Form */}
       <div className="rounded-xl border border-line bg-surface p-6 shadow-subtle space-y-6">
-        <div className="flex items-center justify-between pb-4 border-b border-line">
+        <div className="flex flex-col items-start justify-between gap-3 pb-4 border-b border-line sm:flex-row sm:items-center">
           <div>
             <h3 className="text-sm font-semibold text-ink font-heading">General Information</h3>
             <p className="text-xs text-ink-muted mt-0.5">
@@ -160,7 +160,7 @@ export const SettingsPage: React.FC = () => {
 
       {/* Role & Permissions Info */}
       <div className="rounded-xl border border-line bg-surface p-6 shadow-subtle space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-line">
+        <div className="flex flex-col items-start justify-between gap-3 pb-3 border-b border-line sm:flex-row sm:items-center">
           <div>
             <h3 className="text-sm font-semibold text-ink font-heading flex items-center gap-2">
               <Shield className="w-4 h-4 text-brand" />

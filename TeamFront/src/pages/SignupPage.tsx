@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, ArrowRight, CheckCircle2, Lock, Mail, User } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Lock, Mail, User, Briefcase } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
 import { signupSchema, SignupFormValues } from '@/modules/auth/schemas';
 import { useAuthStore } from '@/modules/auth/useAuthStore';
@@ -11,7 +12,7 @@ import { ROUTES } from '@/config/routes';
 
 export const SignupPage: React.FC = () => {
   const navigate = useNavigate();
-  const { signup, login } = useAuthStore();
+  const { signup } = useAuthStore();
   const [authError, setAuthError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -26,6 +27,8 @@ export const SignupPage: React.FC = () => {
       name: '',
       email: '',
       password: '',
+      title: '',
+      description: '',
     },
   });
 
@@ -38,10 +41,10 @@ export const SignupPage: React.FC = () => {
     setAuthError(null);
     setIsSubmitting(true);
     try {
-      await signup({ name: values.name, email: values.email, password: values.password });
+      await signup(values);
       navigate(ROUTES.DASHBOARD);
-    } catch (err: any) {
-      setAuthError(err?.message || 'Could not create account. Please try a different email.');
+    } catch (err: unknown) {
+      setAuthError(err instanceof Error ? err.message : 'Could not create account. Please try a different email.');
     } finally {
       setIsSubmitting(false);
     }
@@ -137,6 +140,9 @@ export const SignupPage: React.FC = () => {
               error={errors.email?.message}
               {...register('email')}
             />
+
+            <Input label="Job Title" type="text" placeholder="e.g. Frontend Developer" leftIcon={<Briefcase className="h-4 w-4" />} error={errors.title?.message} {...register('title')} />
+            <Textarea label="Skills & abilities" placeholder="What do you specialize in?" error={errors.description?.message} rows={3} {...register('description')} />
 
             <div>
               <Input

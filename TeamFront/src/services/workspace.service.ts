@@ -1,4 +1,4 @@
-import { ApiResponse, PaginatedResponse, Role, Workspace, WorkspaceInvitation } from '@/types';
+import { ApiResponse, PaginatedResponse, Role, User, Workspace, WorkspaceInvitation } from '@/types';
 import { apiClient, getErrorMessage } from '@/lib/api';
 
 export interface CreateWorkspaceDTO {
@@ -17,6 +17,30 @@ export interface InviteMemberDTO {
   role: Role;
 }
 
+export interface WorkspaceMemberSummary extends User {
+  userId: string;
+  role: Role;
+  joinedAt?: string;
+}
+
+const normalizeWorkspace = (raw: Workspace & { createdBy?: string; members?: Array<{ userId: string; role: Role; joinedAt?: string; user?: User }> }): Workspace => ({
+  ...raw,
+  ownerId: raw.ownerId ?? raw.createdBy ?? '',
+  description: raw.description ?? '',
+  members: (raw.members ?? []).map((member) => ({
+    userId: member.userId,
+    role: member.role,
+    joinedAt: member.joinedAt,
+    user: member.user ? { ...member.user, image: member.user.image ?? (member.user as User & { imageUrl?: string }).imageUrl } : { id: member.userId, name: 'Member', email: '', image: '' },
+  })),
+});
+
+export interface WorkspaceMemberSummary extends User {
+  userId: string;
+  role: Role;
+  joinedAt?: string;
+}
+
 class WorkspaceService {
   /**
    * GET /api/workspace/get-all-workspaces?page=&limit=
@@ -28,9 +52,9 @@ class WorkspaceService {
     });
 
     try {
-      const server_response = await apiClient.get(`/workspace/get-all-workspaces?${params.toString()}`);
+      const server_response = await apiClient.get(`/api/workspace/get-all-workspaces?${params.toString()}`);
       return {
-        data: server_response.data.data,
+        data: server_response.data.data.map(normalizeWorkspace),
         total: server_response.data.pagination?.totalItems ?? 0,
         message: server_response.data.message,
         pagination: server_response.data.pagination,
@@ -47,13 +71,22 @@ class WorkspaceService {
     if (!id) throw new Error('No workspace ID provided');
 
     try {
-      const server_response = await apiClient.get(`/workspace/get-workspace/${id}`);
+      const server_response = await apiClient.get(`/api/workspace/get-workspace/${id}`);
       return {
-        data: server_response.data.data,
+        data: normalizeWorkspace(server_response.data.data),
         message: server_response.data.message,
       };
     } catch (err) {
       throw new Error(getErrorMessage(err, 'Failed to load workspace. Please try again.'));
+    }
+  }
+
+  async getWorkspaceMembers(workspaceId: string): Promise<ApiResponse<WorkspaceMemberSummary[]>> {
+    try {
+      const response = await apiClient.get(`/api/workspace/${workspaceId}/get-all-members`);
+      return { data: response.data.data, message: response.data.message };
+    } catch (err) {
+      throw new Error(getErrorMessage(err, 'Failed to load workspace members.'));
     }
   }
 
@@ -74,8 +107,9 @@ class WorkspaceService {
         description: dto.description,
         ownerId: dto.ownerId,
       });
+      // the server_response.data.data also contain the member (only admin) and activity (Workspace_created). So if need any where.
       return {
-        data: server_response.data.data,
+        data: normalizeWorkspace(server_response.data.data.workspace),
         message: server_response.data.message ?? 'Workspace created successfully',
       };
     } catch (err) {
@@ -97,8 +131,9 @@ class WorkspaceService {
         userId: dto.userId,
         role: dto.role,
       });
+     // server_response.data.data also contain the taskActivity (Invitation Send) if need in future
       return {
-        data: response.data.data,
+        data: response.data.data.invitation,
         message: response.data.message ?? 'Invitation sent successfully',
       };
     } catch (err) {
@@ -152,7 +187,7 @@ class WorkspaceService {
     });
 
     try {
-      const server_response = await apiClient.get(`/workspace/${workspaceId}/invitations?${params.toString()}`);
+      const server_response = await apiClient.get(`/api/workspace/${workspaceId}/invitations?${params.toString()}`);
       return {
         data: server_response.data.data,
         total: server_response.data.pagination?.totalItems ?? 0,
@@ -177,8 +212,9 @@ class WorkspaceService {
         userId: userId,
         response: response,
       });
+      // server_response.data.data also contain the activity (ACCEPTED OR DECLINED) , and if declined the member is [] , else list of new member
       return {
-        data: server_response.data.data,
+        data: server_response.data.data.member,
         message:
           server_response.data.message ??
           `Invitation ${response === 'ACCEPTED' ? 'accepted' : 'declined'} successfully`,

@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { CreateTaskModal } from '@/modules/task/components/CreateTaskModal';
 import { CreateWorkspaceModal } from '@/modules/workspace/components/CreateWorkspaceModal';
 import { InviteMemberModal } from '@/modules/workspace/components/InviteMemberModal';
+import { workspaceService } from '@/services/workspace.service';
+import { useWorkspaceStore } from '@/modules/workspace/useWorkspaceStore';
 
 interface AppShellContextType {
   openCreateTaskModal: () => void;
@@ -30,9 +33,28 @@ export const AppShell: React.FC = () => {
   const [createTaskOpen, setCreateTaskOpen] = useState(false);
   const [createWorkspaceOpen, setCreateWorkspaceOpen] = useState(false);
   const [inviteMemberOpen, setInviteMemberOpen] = useState(false);
+  const [taskAccessMessage, setTaskAccessMessage] = useState<string | null>(null);
+  const { activeWorkspaceId } = useWorkspaceStore();
+  const { data: workspacesData, isLoading: loadingWorkspaces } = useQuery({
+    queryKey: ['workspaces', 1, 20],
+    queryFn: () => workspaceService.getWorkspaces(1, 20),
+  });
+  const workspaces = workspacesData?.data ?? [];
 
   const contextValue: AppShellContextType = {
-    openCreateTaskModal: () => setCreateTaskOpen(true),
+    openCreateTaskModal: () => {
+      setTaskAccessMessage(null);
+      if (loadingWorkspaces) return;
+      if (workspaces.length === 0) {
+        setTaskAccessMessage('Please join or create a workspace first.');
+        return;
+      }
+      if (!activeWorkspaceId || !workspaces.some((workspace) => workspace.id === activeWorkspaceId)) {
+        setTaskAccessMessage('Please select a workspace first.');
+        return;
+      }
+      setCreateTaskOpen(true);
+    },
     openCreateWorkspaceModal: () => setCreateWorkspaceOpen(true),
     openInviteMemberModal: () => setInviteMemberOpen(true),
   };
@@ -76,8 +98,14 @@ export const AppShell: React.FC = () => {
         <div className="flex flex-1 flex-col overflow-hidden min-w-0">
           <Topbar
             onMobileMenuToggle={() => setMobileOpen(true)}
-            onOpenCreateTask={() => setCreateTaskOpen(true)}
+            onOpenCreateTask={contextValue.openCreateTaskModal}
           />
+
+          {taskAccessMessage && (
+            <div role="alert" className="mx-4 mt-3 rounded-md bg-amber-500/10 p-3 text-xs text-amber-700">
+              {taskAccessMessage}
+            </div>
+          )}
 
           <main className="flex-1 overflow-y-auto min-w-0">
             <Outlet />

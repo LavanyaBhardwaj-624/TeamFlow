@@ -7,12 +7,14 @@ export interface QuickActionsProps {
   onCreateTask: () => void;
   onCreateWorkspace: () => void;
   onInviteMember: () => void;
+  hasWorkspace: boolean;
 }
 
 export const QuickActions: React.FC<QuickActionsProps> = ({
   onCreateTask,
   onCreateWorkspace,
   onInviteMember,
+  hasWorkspace,
 }) => {
   const { isAdmin } = useCurrentWorkspace();
 
@@ -21,9 +23,11 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
       <Button
         size="sm"
         onClick={onCreateTask}
+        disabled={!hasWorkspace}
+        title={!hasWorkspace ? 'Select or create a workspace first.' : undefined}
         leftIcon={<Plus className="h-3.5 w-3.5" />}
       >
-        New Task
+        {hasWorkspace ? 'New Task' : 'Select workspace first'}
       </Button>
 
       <Button

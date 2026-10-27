@@ -60,7 +60,7 @@ const currentUser = async (req: Request) => db.orm.public.User.where({
                         .include("inviter", (inviter) =>
                             inviter.select("id", "name", "email")
                         )
-                        .select("email","role","expiresAt","createdAt")
+                        .select("id","email","role","status","expiresAt","createdAt")
                         .orderBy((i) => i.createdAt.desc())
                         .offset(offset)
                         .limit(limit)

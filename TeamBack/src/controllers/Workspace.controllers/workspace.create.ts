@@ -1,7 +1,8 @@
 
 import {type NextFunction, type Request , type Response} from 'express'
 import { db } from '../../prisma/db.ts';
-import { workers } from 'node:cluster';
+import { emitWorkspaceEvent } from '../../realtime/socket.ts';
+
 
 const fail = (res: Response, status: number, message: string) => {
         res.status(status).json({
@@ -16,12 +17,13 @@ const fail = (res: Response, status: number, message: string) => {
 const createWorkspace = async (req: Request , res:Response , next: NextFunction ) : Promise<void> => {
 
     // first create workspace -> then record activity.
-
+      const ownerId = req.userId;
+      if( !ownerId ) return fail( res , 401 , "Authentication required");
     const { body } = req;
 
     // create workspace 
     const {name , slug , description } = body;
-    const ownerId = req.userId;
+   
     try{
     
     if (!name?.trim())
@@ -36,7 +38,7 @@ const createWorkspace = async (req: Request , res:Response , next: NextFunction 
     const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
     if (!slugRegex.test(slug))
      return fail(res, 400, "Invalid slug");
-    if( !ownerId ) return fail( res , 401 , "Authentication required");
+  
 
     
     const admin = await db.orm.public.User.where({
@@ -89,6 +91,8 @@ const createWorkspace = async (req: Request , res:Response , next: NextFunction 
       message: `Workspace has been created Successfully`,
       data: result,
     });
+   emitWorkspaceEvent(result.workspace.id, 'workspace:created', result);
+   emitWorkspaceEvent(result.workspace.id, 'activity:created', result.activity);
 
     return;
 

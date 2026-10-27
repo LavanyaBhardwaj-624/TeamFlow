@@ -1,0 +1,1205 @@
+[
+  {
+    "id": "table.ChannelMember",
+    "label": "Create table \"ChannelMember\"",
+    "summary": "Creates table \"ChannelMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ChannelMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ChannelMember\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChannelMember\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ChannelMember\"",
+        "sql": "CREATE TABLE \"public\".\"ChannelMember\" (\n  \"channelId\" uuid NOT NULL,\n  \"joinedAt\" timestamptz(6) DEFAULT (now()) NOT NULL,\n  \"memberId\" uuid NOT NULL,\n  \"workspaceId\" uuid NOT NULL,\n  PRIMARY KEY (\"channelId\", \"memberId\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ChannelMember\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChannelMember\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.ChatChannel",
+    "label": "Create table \"ChatChannel\"",
+    "summary": "Creates table \"ChatChannel\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ChatChannel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ChatChannel\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChatChannel\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ChatChannel\"",
+        "sql": "CREATE TABLE \"public\".\"ChatChannel\" (\n  \"createdAt\" timestamptz(6) DEFAULT (now()) NOT NULL,\n  \"createdBy\" uuid NOT NULL,\n  \"description\" text,\n  \"id\" uuid NOT NULL,\n  \"isDefault\" bool DEFAULT false NOT NULL,\n  \"name\" text NOT NULL,\n  \"type\" text DEFAULT 'PUBLIC' NOT NULL,\n  \"workspaceId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ChatChannel_type_check_1d386f6e\" CHECK (\"type\" IN ('PUBLIC', 'PRIVATE'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ChatChannel\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChatChannel\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.JoinRequest",
+    "label": "Create table \"JoinRequest\"",
+    "summary": "Creates table \"JoinRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "JoinRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"JoinRequest\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"JoinRequest\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"JoinRequest\"",
+        "sql": "CREATE TABLE \"public\".\"JoinRequest\" (\n  \"channelId\" uuid NOT NULL,\n  \"createdAt\" timestamptz(6) DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"responseAt\" timestamptz(6),\n  \"responseBy\" uuid,\n  \"senderId\" uuid NOT NULL,\n  \"status\" text DEFAULT 'PENDING' NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"JoinRequest_status_check_ec66e8d4\" CHECK (\"status\" IN ('PENDING', 'APPROVED', 'DECLINED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"JoinRequest\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"JoinRequest\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Message",
+    "label": "Create table \"Message\"",
+    "summary": "Creates table \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Message\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Message\"",
+        "sql": "CREATE TABLE \"public\".\"Message\" (\n  \"channelId\" uuid NOT NULL,\n  \"content\" text NOT NULL,\n  \"createdAt\" timestamptz(6) DEFAULT (now()) NOT NULL,\n  \"deletedAt\" timestamptz(6),\n  \"editedAt\" timestamptz(6),\n  \"id\" uuid NOT NULL,\n  \"senderId\" uuid,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Message\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.ChatChannel.ChatChannel_workspaceId_name_key",
+    "label": "Add unique constraint on \"ChatChannel\" (workspaceId, name)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "ChatChannel_workspaceId_name_key",
+        "table": "ChatChannel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ChatChannel_workspaceId_name_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChatChannel_workspaceId_name_key",
+          "public",
+          "\"public\".\"ChatChannel\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"ChatChannel_workspaceId_name_key\"",
+        "sql": "ALTER TABLE \"public\".\"ChatChannel\" ADD CONSTRAINT \"ChatChannel_workspaceId_name_key\" UNIQUE (\"workspaceId\", \"name\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"ChatChannel_workspaceId_name_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChatChannel_workspaceId_name_key",
+          "public",
+          "\"public\".\"ChatChannel\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.ChatChannel.ChatChannel_id_workspaceId_key",
+    "label": "Add unique constraint on \"ChatChannel\" (id, workspaceId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "ChatChannel_id_workspaceId_key",
+        "table": "ChatChannel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ChatChannel_id_workspaceId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChatChannel_id_workspaceId_key",
+          "public",
+          "\"public\".\"ChatChannel\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"ChatChannel_id_workspaceId_key\"",
+        "sql": "ALTER TABLE \"public\".\"ChatChannel\" ADD CONSTRAINT \"ChatChannel_id_workspaceId_key\" UNIQUE (\"id\", \"workspaceId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"ChatChannel_id_workspaceId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChatChannel_id_workspaceId_key",
+          "public",
+          "\"public\".\"ChatChannel\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ChannelMember.ChannelMember_channelId_idx_166d3598",
+    "label": "Create index \"ChannelMember_channelId_idx_166d3598\" on \"ChannelMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ChannelMember_channelId_idx_166d3598",
+        "table": "ChannelMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ChannelMember_channelId_idx_166d3598\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChannelMember_channelId_idx_166d3598\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ChannelMember_channelId_idx_166d3598\"",
+        "sql": "CREATE INDEX \"ChannelMember_channelId_idx_166d3598\" ON \"public\".\"ChannelMember\" (\"channelId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ChannelMember_channelId_idx_166d3598\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChannelMember_channelId_idx_166d3598\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ChannelMember.ChannelMember_memberId_idx_76b3c263",
+    "label": "Create index \"ChannelMember_memberId_idx_76b3c263\" on \"ChannelMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ChannelMember_memberId_idx_76b3c263",
+        "table": "ChannelMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ChannelMember_memberId_idx_76b3c263\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChannelMember_memberId_idx_76b3c263\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ChannelMember_memberId_idx_76b3c263\"",
+        "sql": "CREATE INDEX \"ChannelMember_memberId_idx_76b3c263\" ON \"public\".\"ChannelMember\" (\"memberId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ChannelMember_memberId_idx_76b3c263\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChannelMember_memberId_idx_76b3c263\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ChannelMember.ChannelMember_workspaceId_memberId_idx_1f4f03c4",
+    "label": "Create index \"ChannelMember_workspaceId_memberId_idx_1f4f03c4\" on \"ChannelMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ChannelMember_workspaceId_memberId_idx_1f4f03c4",
+        "table": "ChannelMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ChannelMember_workspaceId_memberId_idx_1f4f03c4\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChannelMember_workspaceId_memberId_idx_1f4f03c4\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ChannelMember_workspaceId_memberId_idx_1f4f03c4\"",
+        "sql": "CREATE INDEX \"ChannelMember_workspaceId_memberId_idx_1f4f03c4\" ON \"public\".\"ChannelMember\" (\"workspaceId\", \"memberId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ChannelMember_workspaceId_memberId_idx_1f4f03c4\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChannelMember_workspaceId_memberId_idx_1f4f03c4\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ChatChannel.ChatChannel_createdBy_idx_ba0f792f",
+    "label": "Create index \"ChatChannel_createdBy_idx_ba0f792f\" on \"ChatChannel\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ChatChannel_createdBy_idx_ba0f792f",
+        "table": "ChatChannel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ChatChannel_createdBy_idx_ba0f792f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChatChannel_createdBy_idx_ba0f792f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ChatChannel_createdBy_idx_ba0f792f\"",
+        "sql": "CREATE INDEX \"ChatChannel_createdBy_idx_ba0f792f\" ON \"public\".\"ChatChannel\" (\"createdBy\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ChatChannel_createdBy_idx_ba0f792f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChatChannel_createdBy_idx_ba0f792f\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ChatChannel.ChatChannel_workspaceId_createdAt_idx_5ff7e893",
+    "label": "Create index \"ChatChannel_workspaceId_createdAt_idx_5ff7e893\" on \"ChatChannel\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ChatChannel_workspaceId_createdAt_idx_5ff7e893",
+        "table": "ChatChannel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ChatChannel_workspaceId_createdAt_idx_5ff7e893\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChatChannel_workspaceId_createdAt_idx_5ff7e893\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ChatChannel_workspaceId_createdAt_idx_5ff7e893\"",
+        "sql": "CREATE INDEX \"ChatChannel_workspaceId_createdAt_idx_5ff7e893\" ON \"public\".\"ChatChannel\" (\"workspaceId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ChatChannel_workspaceId_createdAt_idx_5ff7e893\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChatChannel_workspaceId_createdAt_idx_5ff7e893\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ChatChannel.ChatChannel_workspaceId_idx_ba65f874",
+    "label": "Create index \"ChatChannel_workspaceId_idx_ba65f874\" on \"ChatChannel\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ChatChannel_workspaceId_idx_ba65f874",
+        "table": "ChatChannel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ChatChannel_workspaceId_idx_ba65f874\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChatChannel_workspaceId_idx_ba65f874\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ChatChannel_workspaceId_idx_ba65f874\"",
+        "sql": "CREATE INDEX \"ChatChannel_workspaceId_idx_ba65f874\" ON \"public\".\"ChatChannel\" (\"workspaceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ChatChannel_workspaceId_idx_ba65f874\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChatChannel_workspaceId_idx_ba65f874\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.JoinRequest.JoinRequest_channelId_idx_166d3598",
+    "label": "Create index \"JoinRequest_channelId_idx_166d3598\" on \"JoinRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "JoinRequest_channelId_idx_166d3598",
+        "table": "JoinRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"JoinRequest_channelId_idx_166d3598\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"JoinRequest_channelId_idx_166d3598\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"JoinRequest_channelId_idx_166d3598\"",
+        "sql": "CREATE INDEX \"JoinRequest_channelId_idx_166d3598\" ON \"public\".\"JoinRequest\" (\"channelId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"JoinRequest_channelId_idx_166d3598\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"JoinRequest_channelId_idx_166d3598\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.JoinRequest.JoinRequest_channelId_status_createdAt_idx_8ee7fb9a",
+    "label": "Create index \"JoinRequest_channelId_status_createdAt_idx_8ee7fb9a\" on \"JoinRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "JoinRequest_channelId_status_createdAt_idx_8ee7fb9a",
+        "table": "JoinRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"JoinRequest_channelId_status_createdAt_idx_8ee7fb9a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"JoinRequest_channelId_status_createdAt_idx_8ee7fb9a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"JoinRequest_channelId_status_createdAt_idx_8ee7fb9a\"",
+        "sql": "CREATE INDEX \"JoinRequest_channelId_status_createdAt_idx_8ee7fb9a\" ON \"public\".\"JoinRequest\" (\"channelId\", \"status\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"JoinRequest_channelId_status_createdAt_idx_8ee7fb9a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"JoinRequest_channelId_status_createdAt_idx_8ee7fb9a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.JoinRequest.JoinRequest_responseBy_idx_88dc1ef8",
+    "label": "Create index \"JoinRequest_responseBy_idx_88dc1ef8\" on \"JoinRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "JoinRequest_responseBy_idx_88dc1ef8",
+        "table": "JoinRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"JoinRequest_responseBy_idx_88dc1ef8\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"JoinRequest_responseBy_idx_88dc1ef8\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"JoinRequest_responseBy_idx_88dc1ef8\"",
+        "sql": "CREATE INDEX \"JoinRequest_responseBy_idx_88dc1ef8\" ON \"public\".\"JoinRequest\" (\"responseBy\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"JoinRequest_responseBy_idx_88dc1ef8\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"JoinRequest_responseBy_idx_88dc1ef8\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.JoinRequest.JoinRequest_senderId_createdAt_idx_ed252b01",
+    "label": "Create index \"JoinRequest_senderId_createdAt_idx_ed252b01\" on \"JoinRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "JoinRequest_senderId_createdAt_idx_ed252b01",
+        "table": "JoinRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"JoinRequest_senderId_createdAt_idx_ed252b01\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"JoinRequest_senderId_createdAt_idx_ed252b01\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"JoinRequest_senderId_createdAt_idx_ed252b01\"",
+        "sql": "CREATE INDEX \"JoinRequest_senderId_createdAt_idx_ed252b01\" ON \"public\".\"JoinRequest\" (\"senderId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"JoinRequest_senderId_createdAt_idx_ed252b01\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"JoinRequest_senderId_createdAt_idx_ed252b01\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.JoinRequest.JoinRequest_senderId_idx_4689c490",
+    "label": "Create index \"JoinRequest_senderId_idx_4689c490\" on \"JoinRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "JoinRequest_senderId_idx_4689c490",
+        "table": "JoinRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"JoinRequest_senderId_idx_4689c490\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"JoinRequest_senderId_idx_4689c490\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"JoinRequest_senderId_idx_4689c490\"",
+        "sql": "CREATE INDEX \"JoinRequest_senderId_idx_4689c490\" ON \"public\".\"JoinRequest\" (\"senderId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"JoinRequest_senderId_idx_4689c490\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"JoinRequest_senderId_idx_4689c490\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Message.Message_channelId_createdAt_id_idx_bd37c14e",
+    "label": "Create index \"Message_channelId_createdAt_id_idx_bd37c14e\" on \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Message_channelId_createdAt_id_idx_bd37c14e",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Message_channelId_createdAt_id_idx_bd37c14e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message_channelId_createdAt_id_idx_bd37c14e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Message_channelId_createdAt_id_idx_bd37c14e\"",
+        "sql": "CREATE INDEX \"Message_channelId_createdAt_id_idx_bd37c14e\" ON \"public\".\"Message\" (\"channelId\", \"createdAt\", \"id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Message_channelId_createdAt_id_idx_bd37c14e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message_channelId_createdAt_id_idx_bd37c14e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Message.Message_channelId_idx_166d3598",
+    "label": "Create index \"Message_channelId_idx_166d3598\" on \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Message_channelId_idx_166d3598",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Message_channelId_idx_166d3598\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message_channelId_idx_166d3598\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Message_channelId_idx_166d3598\"",
+        "sql": "CREATE INDEX \"Message_channelId_idx_166d3598\" ON \"public\".\"Message\" (\"channelId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Message_channelId_idx_166d3598\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message_channelId_idx_166d3598\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Message.Message_senderId_createdAt_idx_ed252b01",
+    "label": "Create index \"Message_senderId_createdAt_idx_ed252b01\" on \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Message_senderId_createdAt_idx_ed252b01",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Message_senderId_createdAt_idx_ed252b01\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message_senderId_createdAt_idx_ed252b01\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Message_senderId_createdAt_idx_ed252b01\"",
+        "sql": "CREATE INDEX \"Message_senderId_createdAt_idx_ed252b01\" ON \"public\".\"Message\" (\"senderId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Message_senderId_createdAt_idx_ed252b01\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message_senderId_createdAt_idx_ed252b01\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Message.Message_senderId_idx_4689c490",
+    "label": "Create index \"Message_senderId_idx_4689c490\" on \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Message_senderId_idx_4689c490",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Message_senderId_idx_4689c490\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message_senderId_idx_4689c490\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Message_senderId_idx_4689c490\"",
+        "sql": "CREATE INDEX \"Message_senderId_idx_4689c490\" ON \"public\".\"Message\" (\"senderId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Message_senderId_idx_4689c490\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Message_senderId_idx_4689c490\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ChannelMember.ChannelMember_channelId_fkey",
+    "label": "Add foreign key \"ChannelMember_channelId_fkey\" on \"ChannelMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ChannelMember_channelId_fkey",
+        "table": "ChannelMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ChannelMember_channelId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChannelMember_channelId_fkey",
+          "public",
+          "\"public\".\"ChannelMember\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ChannelMember_channelId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ChannelMember\"\nADD CONSTRAINT \"ChannelMember_channelId_fkey\"\nFOREIGN KEY (\"channelId\")\nREFERENCES \"public\".\"ChatChannel\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ChannelMember_channelId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChannelMember_channelId_fkey",
+          "public",
+          "\"public\".\"ChannelMember\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ChannelMember.ChannelMember_workspaceId_memberId_fkey",
+    "label": "Add foreign key \"ChannelMember_workspaceId_memberId_fkey\" on \"ChannelMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ChannelMember_workspaceId_memberId_fkey",
+        "table": "ChannelMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ChannelMember_workspaceId_memberId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChannelMember_workspaceId_memberId_fkey",
+          "public",
+          "\"public\".\"ChannelMember\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ChannelMember_workspaceId_memberId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ChannelMember\"\nADD CONSTRAINT \"ChannelMember_workspaceId_memberId_fkey\"\nFOREIGN KEY (\"workspaceId\", \"memberId\")\nREFERENCES \"public\".\"WorkspaceMember\" (\"workspaceId\", \"userId\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ChannelMember_workspaceId_memberId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChannelMember_workspaceId_memberId_fkey",
+          "public",
+          "\"public\".\"ChannelMember\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ChatChannel.ChatChannel_workspaceId_fkey",
+    "label": "Add foreign key \"ChatChannel_workspaceId_fkey\" on \"ChatChannel\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ChatChannel_workspaceId_fkey",
+        "table": "ChatChannel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ChatChannel_workspaceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChatChannel_workspaceId_fkey",
+          "public",
+          "\"public\".\"ChatChannel\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ChatChannel_workspaceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ChatChannel\"\nADD CONSTRAINT \"ChatChannel_workspaceId_fkey\"\nFOREIGN KEY (\"workspaceId\")\nREFERENCES \"public\".\"Workspace\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ChatChannel_workspaceId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChatChannel_workspaceId_fkey",
+          "public",
+          "\"public\".\"ChatChannel\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ChatChannel.ChatChannel_createdBy_fkey",
+    "label": "Add foreign key \"ChatChannel_createdBy_fkey\" on \"ChatChannel\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ChatChannel_createdBy_fkey",
+        "table": "ChatChannel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ChatChannel_createdBy_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChatChannel_createdBy_fkey",
+          "public",
+          "\"public\".\"ChatChannel\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ChatChannel_createdBy_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ChatChannel\"\nADD CONSTRAINT \"ChatChannel_createdBy_fkey\"\nFOREIGN KEY (\"createdBy\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE RESTRICT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ChatChannel_createdBy_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChatChannel_createdBy_fkey",
+          "public",
+          "\"public\".\"ChatChannel\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.JoinRequest.JoinRequest_channelId_fkey",
+    "label": "Add foreign key \"JoinRequest_channelId_fkey\" on \"JoinRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "JoinRequest_channelId_fkey",
+        "table": "JoinRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"JoinRequest_channelId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "JoinRequest_channelId_fkey",
+          "public",
+          "\"public\".\"JoinRequest\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"JoinRequest_channelId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"JoinRequest\"\nADD CONSTRAINT \"JoinRequest_channelId_fkey\"\nFOREIGN KEY (\"channelId\")\nREFERENCES \"public\".\"ChatChannel\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"JoinRequest_channelId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "JoinRequest_channelId_fkey",
+          "public",
+          "\"public\".\"JoinRequest\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.JoinRequest.JoinRequest_senderId_fkey",
+    "label": "Add foreign key \"JoinRequest_senderId_fkey\" on \"JoinRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "JoinRequest_senderId_fkey",
+        "table": "JoinRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"JoinRequest_senderId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "JoinRequest_senderId_fkey",
+          "public",
+          "\"public\".\"JoinRequest\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"JoinRequest_senderId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"JoinRequest\"\nADD CONSTRAINT \"JoinRequest_senderId_fkey\"\nFOREIGN KEY (\"senderId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"JoinRequest_senderId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "JoinRequest_senderId_fkey",
+          "public",
+          "\"public\".\"JoinRequest\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.JoinRequest.JoinRequest_responseBy_fkey",
+    "label": "Add foreign key \"JoinRequest_responseBy_fkey\" on \"JoinRequest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "JoinRequest_responseBy_fkey",
+        "table": "JoinRequest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"JoinRequest_responseBy_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "JoinRequest_responseBy_fkey",
+          "public",
+          "\"public\".\"JoinRequest\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"JoinRequest_responseBy_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"JoinRequest\"\nADD CONSTRAINT \"JoinRequest_responseBy_fkey\"\nFOREIGN KEY (\"responseBy\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"JoinRequest_responseBy_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "JoinRequest_responseBy_fkey",
+          "public",
+          "\"public\".\"JoinRequest\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Message.Message_channelId_fkey",
+    "label": "Add foreign key \"Message_channelId_fkey\" on \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Message_channelId_fkey",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Message_channelId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Message_channelId_fkey",
+          "public",
+          "\"public\".\"Message\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Message_channelId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Message\"\nADD CONSTRAINT \"Message_channelId_fkey\"\nFOREIGN KEY (\"channelId\")\nREFERENCES \"public\".\"ChatChannel\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Message_channelId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Message_channelId_fkey",
+          "public",
+          "\"public\".\"Message\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Message.Message_senderId_fkey",
+    "label": "Add foreign key \"Message_senderId_fkey\" on \"Message\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Message_senderId_fkey",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Message_senderId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Message_senderId_fkey",
+          "public",
+          "\"public\".\"Message\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Message_senderId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Message\"\nADD CONSTRAINT \"Message_senderId_fkey\"\nFOREIGN KEY (\"senderId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Message_senderId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Message_senderId_fkey",
+          "public",
+          "\"public\".\"Message\""
+        ]
+      }
+    ]
+  }
+]

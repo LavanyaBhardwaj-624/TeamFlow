@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertCircle, CheckCircle2, Loader2, MailCheck } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
+import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { inviteMemberSchema, InviteMemberFormValues } from '../schemas';
 import { workspaceService } from '@/services/workspace.service';
@@ -21,11 +22,13 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
   const queryClient = useQueryClient();
   const { workspace } = useCurrentWorkspace();
   const { user } = useAuthStore();
+  const [search, setSearch] = useState('');
 
-  // Fetch all known users (for the select dropdown)
+  // Search the complete user directory as the user types.
   const { data: usersData } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => authService.getAllUsers(),
+    queryKey: ['users', search.trim()],
+    queryFn: () => authService.getAllUsers(search),
+    enabled: isOpen,
   });
   const allUsers = usersData?.data || [];
 
@@ -46,7 +49,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
       .map((inv) => {
         // Backend may return invitedUserId or email; extract what's available
         // WorkspaceInvitation type has `email` field – we match by email when userId not available
-        return (inv as any).invitedUserId ?? inv.email;
+        return inv.email.trim().toLowerCase();
       }),
   );
 
@@ -55,7 +58,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
     (u) =>
       !currentMemberIds.has(u.id) &&
       !pendingIds.has(u.id) &&
-      !pendingIds.has(u.email),
+      !pendingIds.has(u.email.trim().toLowerCase()) && `${u.name ?? ''} ${u.email} ${u.title ?? ''}`.toLowerCase().includes(search.trim().toLowerCase()),
   );
 
   const {
@@ -146,19 +149,21 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
         </div>
       )}
 
-      {availableUsers.length === 0 ? (
-        <div className="py-8 text-center space-y-2">
-          <MailCheck className="h-8 w-8 mx-auto text-ink-subtle" />
-          <p className="text-xs font-medium text-ink-muted">
-            All known team members are already in this workspace or have pending invitations.
-          </p>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <Input label="Search people" placeholder="Name, email, or title" value={search} onChange={(event) => setSearch(event.target.value)} />
+          {availableUsers.length === 0 && (
+            <div className="rounded-lg border border-line bg-surface-secondary/40 px-3 py-4 text-center space-y-2">
+              <MailCheck className="h-8 w-8 mx-auto text-ink-subtle" />
+              <p className="text-xs font-medium text-ink-muted">
+                No eligible users found. Try another name or email.
+              </p>
+            </div>
+          )}
           <Select
             label="Select Team Member"
             error={errors.userId?.message}
             {...register('userId')}
+            disabled={availableUsers.length === 0}
           >
             <option value="">— Select a team member —</option>
             {availableUsers.map((u) => (
@@ -186,8 +191,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ isOpen, on
               Send Invitation
             </Button>
           </div>
-        </form>
-      )}
+      </form>
     </Modal>
   );
 };

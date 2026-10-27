@@ -1,5 +1,6 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useEffect, useRef } from 'react';
 import {
   Activity as ActivityIcon,
   CheckCircle2,
@@ -21,15 +22,19 @@ interface ActivityFeedProps {
 }
 
 export const ActivityFeed: React.FC<ActivityFeedProps> = ({ workspaceId, limit = 8 }) => {
-  const { data, isLoading, error } = useQuery({
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ['activities', workspaceId || 'all', limit],
-    queryFn: () =>
+    queryFn: ({ pageParam }) =>
       workspaceId
-        ? activityService.getActivitiesByWorkspace(workspaceId, limit)
+        ? activityService.getActivitiesByWorkspace(workspaceId, limit, pageParam)
         : activityService.getRecentActivities(limit),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, pages) => lastPage.pagination?.hasNextPage ? pages.length + 1 : undefined,
   });
+  useEffect(() => { const node = sentinelRef.current; if (!node) return; const observer = new IntersectionObserver((entries) => { if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) void fetchNextPage(); }); observer.observe(node); return () => observer.disconnect(); }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  const activities = data?.data || [];
+  const activities = data?.pages.flatMap((page) => page.data) || [];
 
   const getActionIcon = (type: Activity['type']) => {
     switch (type) {
@@ -99,6 +104,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ workspaceId, limit =
           </div>
         </div>
       ))}
+      <div ref={sentinelRef} className="h-4" aria-label={isFetchingNextPage ? 'Loading more activities' : undefined} />
     </div>
   );
 };

@@ -59,10 +59,11 @@ export const Sheet: React.FC<SheetProps> = ({
         className={cn(
           'relative flex h-full w-full flex-col border-line bg-surface shadow-modal transition-transform duration-200',
           side === 'right' ? 'ml-auto border-l animate-in slide-in-from-right' : 'mr-auto border-r animate-in slide-in-from-left',
-          widthMap[width]
+          widthMap[width],
+          'max-w-[calc(100vw-1rem)] sm:max-w-[calc(100vw-2rem)]'
         )}
       >
-        <div className="flex items-center justify-between border-b border-line px-6 py-4">
+        <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-4 sm:px-6">
           <div>
             {title && <h3 className="text-base font-semibold text-ink">{title}</h3>}
             {description && <p className="text-xs text-ink-muted mt-0.5">{description}</p>}
@@ -75,7 +76,7 @@ export const Sheet: React.FC<SheetProps> = ({
             <X className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">{children}</div>
       </div>
     </div>
   );

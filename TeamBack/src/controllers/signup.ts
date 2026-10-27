@@ -4,8 +4,7 @@ import { hashPassword } from '../utility/PassHass.ts';
 import { setRefreshCookie , signAccessToken , issueRefreshToken} from '../utility/tokens.ts'
 
 import dotenv from 'dotenv'
-import { userInfo } from 'node:os';
-import { FAILOVER_MODES } from 'redis';
+
 dotenv.config()
 /**
  * Controller to handle user registration
@@ -37,11 +36,11 @@ const Signup = async function (req: Request, res: Response): Promise<void> {
        fail(res , 400 , "invalid Pasword");
       return;
     }
-    if(!title || typeof title !== "string"){
+    if(!title || typeof title !== "string" || title.length > 100){
       fail(res , 400 , "Invalid title");
       return;
     }
-    if(!description || typeof description !== "string"){
+    if(!description || typeof description !== "string" || description.length > 1000){
       fail(res , 400 , "Invalid description");
       return;
     }

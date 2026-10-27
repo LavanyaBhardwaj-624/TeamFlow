@@ -43,7 +43,7 @@ const getWorkspace = async (req: Request<{workspaceId: string}> , res: Response 
                 .where({ id: workspaceId })
                 .include("members", (members) =>
                     members.include("user", (user) =>
-                    user.select("id", "name", "email", "imageUrl")
+                    user.select("id", "name", "email", "title", "description", "imageUrl")
                     )
                 )
                 .first();
@@ -63,7 +63,7 @@ const getWorkspace = async (req: Request<{workspaceId: string}> , res: Response 
       success: true,
       status: 200,
       message: 'Workspace retrieved successfully',
-      data: workspace,
+      data: workspace,   // has multiple members , so workspace.members is an array
     });
     return;
     }catch(err){

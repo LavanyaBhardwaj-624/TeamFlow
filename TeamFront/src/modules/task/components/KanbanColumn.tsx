@@ -38,7 +38,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
     <div
       ref={setNodeRef}
       className={cn(
-        'flex flex-col rounded-xl bg-surface-secondary/40 border border-line p-3 min-w-[280px] sm:min-w-[320px] flex-1 transition-colors duration-150',
+        'flex min-w-0 flex-col rounded-xl bg-surface-secondary/40 border border-line p-3 transition-colors duration-150',
         isOver && 'bg-brand/5 border-brand/50'
       )}
     >

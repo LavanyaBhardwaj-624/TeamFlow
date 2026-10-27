@@ -63,7 +63,7 @@ export const Modal: React.FC<ModalProps> = ({
     >
       <div
         className={cn(
-          'relative w-full rounded-xl border border-line bg-surface p-6 shadow-modal transition-all animate-in zoom-in-95 duration-150',
+          'relative flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-xl border border-line bg-surface p-4 shadow-modal transition-all animate-in zoom-in-95 duration-150 sm:p-6',
           maxWidthMap[maxWidth]
         )}
       >
@@ -87,7 +87,7 @@ export const Modal: React.FC<ModalProps> = ({
             </button>
           )}
         </div>
-        <div>{children}</div>
+        <div className="min-h-0 overflow-y-auto">{children}</div>
       </div>
     </div>
   );

@@ -195,12 +195,12 @@ export const WorkspacePage: React.FC = () => {
             )}
           </div>
 
-          <div className="rounded-xl border border-line bg-surface overflow-hidden shadow-subtle">
+          <div className="rounded-xl border border-line bg-surface overflow-hidden shadow-subtle max-h-80 overflow-y-auto">
             <div className="divide-y divide-line">
               {workspace.members.map((member) => (
                 <div
                   key={member.userId}
-                  className="flex items-center justify-between p-4 hover:bg-surface-secondary/40 transition-colors"
+                  className="flex flex-wrap items-center justify-between gap-3 p-4 hover:bg-surface-secondary/40 transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <Avatar

@@ -26,15 +26,15 @@ const getAllWorkspace = async (req: Request<{workspaceId: string}> , res: Respon
              const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
 
             const offset = (page - 1) * limit;
-            const totalItems = await db.orm.public.Workspace
+            const Items = await db.orm.public.Workspace
               .where((w) => w.members.some((m) => m.userId.eq(userId)))
-              .count();
-
+              .aggregate((a) => ({ total : a.count()}));
+            const totalItems = Items.total;
            const workspaces = await db.orm.public.Workspace
              .where((w) => w.members.some((m) => m.userId.eq(userId)))
              .include("members", (members) =>
               members.include("user", (user) =>
-             user.select("id", "name", "email", "imageUrl")
+             user.select("id", "name", "email", "title", "description", "imageUrl")
             )
         )
         .orderBy((ws) => ws.createdAt.desc())
@@ -68,6 +68,7 @@ const getAllWorkspace = async (req: Request<{workspaceId: string}> , res: Respon
             status: 500,
             }
         });
+        return;
     }
 
       

@@ -20,7 +20,7 @@ interface CreateWorkspaceModalProps {
 export const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOpen, onClose }) => {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-  const { setActiveWorkspaceId } = useWorkspaceStore();
+  const { setActiveWorkspaceId, addWorkspace } = useWorkspaceStore();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const {
@@ -37,14 +37,17 @@ export const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ isOp
   });
 
   const mutation = useMutation({
-    mutationFn: (values: CreateWorkspaceFormValues) =>
-      workspaceService.createWorkspace({
+    mutationFn: (values: CreateWorkspaceFormValues) => {
+      if (!user?.id) throw new Error('You must be signed in to create a workspace.');
+      return workspaceService.createWorkspace({
         name: values.name,
         description: values.description,
-        ownerId: user?.id || '',
-      }),
+        ownerId: user.id,
+      });
+    },
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+      addWorkspace(res.data);
       queryClient.invalidateQueries({ queryKey: ['activities'] });
       setActiveWorkspaceId(res.data.id);
       const msg = res.message ?? `Workspace "${res.data.name}" created successfully!`;

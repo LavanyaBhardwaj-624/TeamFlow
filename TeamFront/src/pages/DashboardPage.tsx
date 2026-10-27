@@ -129,6 +129,7 @@ export const DashboardPage: React.FC = () => {
           onCreateTask={openCreateTaskModal}
           onCreateWorkspace={openCreateWorkspaceModal}
           onInviteMember={openInviteMemberModal}
+          hasWorkspace={Boolean(activeWorkspaceId)}
         />
       </div>
 

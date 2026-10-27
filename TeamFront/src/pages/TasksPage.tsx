@@ -81,7 +81,7 @@ export const TasksPage: React.FC = () => {
   // Status Update Mutation
   const statusMutation = useMutation({
     mutationFn: ({ taskId, newStatus }: { taskId: string; newStatus: TaskStatus }) =>
-      taskService.updateTaskStatus(taskId, newStatus, user?.id || 'user_1'),
+      taskService.updateTaskStatus(taskId, newStatus, user?.id ?? (() => { throw new Error('Authentication required'); })()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', activeId] });
       queryClient.invalidateQueries({ queryKey: ['activities'] });
@@ -90,7 +90,7 @@ export const TasksPage: React.FC = () => {
 
   // Delete Mutation (Admin only)
   const deleteMutation = useMutation({
-    mutationFn: (taskId: string) => taskService.deleteTask(taskId, user?.id || 'user_1'),
+    mutationFn: (taskId: string) => taskService.deleteTask(taskId, user?.id ?? (() => { throw new Error('Authentication required'); })()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', activeId] });
       queryClient.invalidateQueries({ queryKey: ['activities'] });
@@ -163,12 +163,12 @@ export const TasksPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="flex min-h-full min-w-0 flex-col overflow-hidden p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-line shrink-0">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink font-heading">
+          <div className="flex min-w-0 flex-wrap items-center gap-2.5">
+            <h1 className="text-xl sm:text-3xl font-bold tracking-tight text-ink font-heading">
               Sprint Board
             </h1>
             <Badge variant={isAdmin ? 'roleAdmin' : 'roleMember'} size="sm">
@@ -180,7 +180,7 @@ export const TasksPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex w-full items-center gap-2.5 sm:w-auto">
           <Button
             size="sm"
             onClick={openCreateTaskModal}
@@ -193,7 +193,7 @@ export const TasksPage: React.FC = () => {
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shrink-0">
-        <div className="relative flex-1 max-w-md">
+        <div className="relative w-full md:max-w-md md:flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-subtle" />
           <input
             type="text"
@@ -204,14 +204,14 @@ export const TasksPage: React.FC = () => {
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 text-xs">
+        <div className="flex w-full flex-col items-stretch gap-2 text-xs sm:flex-row sm:flex-wrap sm:items-center md:w-auto">
           {/* Priority filter */}
           <div className="flex items-center gap-1.5">
             <span className="text-[11px] text-ink-muted font-medium">Priority:</span>
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="rounded-lg border border-line bg-surface px-2.5 py-1 text-xs text-ink focus:border-brand focus:outline-none cursor-pointer"
+              className="min-w-0 flex-1 rounded-lg border border-line bg-surface px-2.5 py-1 text-xs text-ink focus:border-brand focus:outline-none cursor-pointer sm:flex-none"
             >
               <option value="ALL">All Priorities</option>
               <option value="LOW">Low</option>
@@ -227,7 +227,7 @@ export const TasksPage: React.FC = () => {
             <select
               value={assigneeFilter}
               onChange={(e) => setAssigneeFilter(e.target.value)}
-              className="rounded-lg border border-line bg-surface px-2.5 py-1 text-xs text-ink focus:border-brand focus:outline-none cursor-pointer max-w-[150px]"
+              className="min-w-0 flex-1 rounded-lg border border-line bg-surface px-2.5 py-1 text-xs text-ink focus:border-brand focus:outline-none cursor-pointer sm:max-w-[150px] sm:flex-none"
             >
               <option value="ALL">All Members</option>
               {users.map((u) => (
@@ -242,7 +242,7 @@ export const TasksPage: React.FC = () => {
 
       {/* Kanban Board Columns Area */}
       {loadingTasks ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
+        <div className="grid min-h-[360px] grid-cols-1 gap-4 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex flex-col space-y-3 rounded-xl border border-line p-4 bg-surface-secondary/30">
               <Skeleton className="h-6 w-1/3 rounded" />
@@ -258,7 +258,8 @@ export const TasksPage: React.FC = () => {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 flex-1 min-h-0 overflow-x-auto pb-4">
+          <div className="min-h-[360px] min-w-0 flex-1 overflow-x-auto overflow-y-hidden pb-4">
+            <div className="grid h-full min-w-max grid-flow-col auto-cols-[minmax(280px,85vw)] gap-4 lg:min-w-0 lg:grid-flow-row lg:grid-cols-3 lg:auto-cols-auto lg:gap-5">
             {COLUMNS.map((colStatus) => {
               const columnTasks = filteredTasks.filter((t) => t.status === colStatus);
               return (
@@ -274,6 +275,7 @@ export const TasksPage: React.FC = () => {
                 />
               );
             })}
+            </div>
           </div>
 
           {/* Drag Overlay for smooth preview during drag */}

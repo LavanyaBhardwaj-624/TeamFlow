@@ -1,5 +1,6 @@
 // use prisma-8
 
+
 enum WorkspaceRole {
   ADMIN
   MEMBER
@@ -11,12 +12,27 @@ enum TaskStatus {
   IN_REVIEW
   DONE
 }
+enum ChannelType {
+  PUBLIC
+  PRIVATE
+}
 
+enum ChannelRole {
+  OWNER
+  MEMBER
+}
 enum TaskPriority {
   LOW
   MEDIUM
   HIGH
   URGENT
+}
+
+enum RequestStatus {
+  // Block keys and attributes
+  PENDING
+  APPROVED
+  DECLINED
 }
 
 enum InvitationStatus {
@@ -49,30 +65,35 @@ model User {
   passwordHash String
   title        String?
   description  String?
-  imageUrl    String?
+  imageUrl     String?
   createdAt    Timestamptz(6) @default(now())
-  
 
-  workspacesCreated Workspace[]           @relation("WorkspaceCreator")
+  workspacesCreated Workspace[]            @relation("WorkspaceCreator")
   memberships       WorkspaceMember[]
-  invitationsSent   WorkspaceInvitation[] @relation("InvitationSender")
-  tasksCreated      Task[]                @relation("TaskCreator")
+  invitationsSent   WorkspaceInvitation[]  @relation("InvitationSender")
+  tasksCreated      Task[]                 @relation("TaskCreator")
   taskComments      TaskComment[]
-  activities        TaskActivity[]       @relation("ActivityActor")
+  activities        TaskActivity[]         @relation("ActivityActor")
+  chatChannels      ChatChannel[]          @relation("ChannelCreator")
+  joinRequests      JoinRequest[]         @relation("JoinRequestSender")
+  responsesHandled  JoinRequest[]         @relation("JoinRequestResponder")
+  messages          Message[]             @relation("MessageSender")
 }
 
 model Workspace {
   id          Uuid           @id @default(uuid())
   name        String
-  slug        String          @unique
+  slug        String         @unique
   description String?
   createdBy   Uuid
   createdAt   Timestamptz(6) @default(now())
 
-  creator     User                  @relation("WorkspaceCreator", fields: [createdBy], references: [id], onDelete: Restrict)
-  members     WorkspaceMember[]
-  invitations WorkspaceInvitation[]
-  tasks       Task[]
+  creator      User                  @relation("WorkspaceCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  members      WorkspaceMember[]
+  invitations  WorkspaceInvitation[]
+  tasks        Task[]
+  chatChannels ChatChannel[]
+  taskActivities TaskActivity[]
 
   @@index([createdBy])
 }
@@ -84,9 +105,10 @@ model WorkspaceMember {
   role        WorkspaceRole  @default(MEMBER)
   joinedAt    Timestamptz(6) @default(now())
 
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace      Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   taskAssignments TaskAssignee[]
+ channelMemberships ChannelMember[]
 
   @@unique([workspaceId, userId])
   @@index([userId])
@@ -125,13 +147,13 @@ model Task {
   createdAt   Timestamptz(6) @default(now())
   updatedAt   temporal.updatedAt() 
 
-  workspace Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  creator   User           @relation("TaskCreator", fields: [createdBy], references: [id], onDelete: Restrict)
-  comments  TaskComment[]
-  assignees TaskAssignee[]
+  workspace  Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creator    User           @relation("TaskCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  comments   TaskComment[]
+  assignees  TaskAssignee[]
   activities TaskActivity[]
 
-  @@unique([id , workspaceId])
+  @@unique([id, workspaceId])
   @@index([workspaceId, status])
   @@index([createdBy])
   @@index([dueAt])
@@ -157,8 +179,8 @@ model TaskAssignee {
   userId     Uuid
   assignedAt Timestamptz(6) @default(now())
 
-  task Task @relation(fields: [taskId , workspaceId], references: [id , workspaceId], onDelete: Cascade)
-  membership WorkspaceMember @relation(fields: [workspaceId , userId], references: [workspaceId , userId], onDelete: Cascade)
+  task      Task           @relation(fields: [taskId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  membership WorkspaceMember @relation(fields: [workspaceId, userId], references: [workspaceId, userId], onDelete: Cascade)
 
   @@id([taskId, userId])
   @@index([userId])
@@ -181,4 +203,75 @@ model TaskActivity {
   @@index([workspaceId, createdAt])
   @@index([taskId, createdAt])
   @@index([actorId])
+}
+
+model ChatChannel {
+  id          Uuid           @id @default(uuid())
+  workspaceId Uuid
+  createdBy   Uuid
+  name        String
+  description String?
+  type        ChannelType    @default(PUBLIC)
+  isDefault   Boolean        @default(false)
+  createdAt   Timestamptz(6) @default(now())
+
+  workspace    Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creator      User            @relation("ChannelCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  members      ChannelMember[]
+  joinRequests JoinRequest[]
+  messages     Message[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId, createdAt])
+  @@index([createdBy])
+  @@unique([id, workspaceId])
+}
+
+model ChannelMember {
+  workspaceId Uuid             
+  channelId Uuid
+  memberId  Uuid
+  role        ChannelRole    @default(MEMBER)
+  joinedAt  Timestamptz(6) @default(now())
+
+  channel ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  // member  User        @relation( "UserChannelMembership", fields: [memberId], references: [id], onDelete: Cascade)
+  membership WorkspaceMember @relation(fields: [workspaceId, memberId], references: [workspaceId, userId], onDelete: Cascade)
+  
+  @@id([channelId, memberId])
+  @@index([memberId])
+  @@index([workspaceId, memberId])
+}
+
+model JoinRequest {
+  id         Uuid           @id @default(uuid())
+  channelId  Uuid
+  senderId   Uuid
+  responseBy Uuid?          // team head / admin; null until someone responds
+  status     RequestStatus  @default(PENDING) // single source of truth
+  createdAt  Timestamptz(6) @default(now())
+  responseAt Timestamptz(6)?                  // null while pending
+
+  channel   ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  sender    User        @relation("JoinRequestSender", fields: [senderId], references: [id], onDelete: Cascade)
+  responder User?       @relation("JoinRequestResponder", fields: [responseBy], references: [id], onDelete: SetNull)
+
+  @@index([channelId, status, createdAt])
+  @@index([senderId, createdAt])
+}
+
+model Message {
+  id        Uuid           @id @default(uuid())
+  channelId Uuid
+  senderId  Uuid?          // nullable so onDelete: SetNull is valid
+  content   String
+  createdAt Timestamptz(6) @default(now())
+  editedAt  Timestamptz(6)? // null until the message is edited
+  deletedAt Timestamptz(6)? // null = not deleted (soft delete)
+
+  channel ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  sender  User?       @relation("MessageSender" , fields: [senderId], references: [id], onDelete: SetNull)
+
+  @@index([channelId, createdAt, id])
+  @@index([senderId, createdAt])
 }

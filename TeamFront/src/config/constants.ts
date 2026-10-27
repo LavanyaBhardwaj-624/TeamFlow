@@ -11,6 +11,7 @@ export const APP_CONFIG = {
 export const STORAGE_KEYS = {
   AUTH_SESSION: 'teamflow_auth_session',
   ACTIVE_WORKSPACE_ID: 'teamflow_active_workspace_id',
+  WORKSPACES: 'teamflow_workspaces',
   THEME: 'teamflow_theme',
 };
 

@@ -18,9 +18,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'84514a773233becc1bb765e8c710a2bff9dfe4604116cbaf1592717f89024b02'>;
+  StorageHashBase<'74680b649b452002b3f8f76585bdae4b14b39032d87213c2e2936b8bbf45fbf8'>;
 export type ExecutionHash =
-  ExecutionHashBase<'ac3740c08db07a153822d7b44a03174d3cb8760bc1a8a22f72639ad7398f5cac'>;
+  ExecutionHashBase<'9688489e09b78c6eafca8cc5690d45a7b92e678e17736c9ffba2e195dc2e18b0'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -234,6 +234,41 @@ type DefaultLiteralValue<CodecId extends string, Encoded> = CodecId extends keyo
 
 export type FieldOutputTypes = {
   readonly public: {
+    readonly ChannelMember: {
+      readonly channelId: CodecTypes['pg/uuid@1']['output'];
+      readonly joinedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly memberId: CodecTypes['pg/uuid@1']['output'];
+      readonly role: 'OWNER' | 'MEMBER';
+      readonly workspaceId: CodecTypes['pg/uuid@1']['output'];
+    };
+    readonly ChatChannel: {
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly createdBy: CodecTypes['pg/uuid@1']['output'];
+      readonly description: CodecTypes['pg/text@1']['output'] | null;
+      readonly id: CodecTypes['pg/uuid@1']['output'];
+      readonly isDefault: CodecTypes['pg/bool@1']['output'];
+      readonly name: CodecTypes['pg/text@1']['output'];
+      readonly type: 'PUBLIC' | 'PRIVATE';
+      readonly workspaceId: CodecTypes['pg/uuid@1']['output'];
+    };
+    readonly JoinRequest: {
+      readonly channelId: CodecTypes['pg/uuid@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly id: CodecTypes['pg/uuid@1']['output'];
+      readonly responseAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly responseBy: CodecTypes['pg/uuid@1']['output'] | null;
+      readonly senderId: CodecTypes['pg/uuid@1']['output'];
+      readonly status: 'PENDING' | 'APPROVED' | 'DECLINED';
+    };
+    readonly Message: {
+      readonly channelId: CodecTypes['pg/uuid@1']['output'];
+      readonly content: CodecTypes['pg/text@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly editedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly id: CodecTypes['pg/uuid@1']['output'];
+      readonly senderId: CodecTypes['pg/uuid@1']['output'] | null;
+    };
     readonly Task: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly createdBy: CodecTypes['pg/uuid@1']['output'];
@@ -325,6 +360,41 @@ export type FieldOutputTypes = {
 };
 export type FieldInputTypes = {
   readonly public: {
+    readonly ChannelMember: {
+      readonly channelId: CodecTypes['pg/uuid@1']['input'];
+      readonly joinedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly memberId: CodecTypes['pg/uuid@1']['input'];
+      readonly role: 'OWNER' | 'MEMBER';
+      readonly workspaceId: CodecTypes['pg/uuid@1']['input'];
+    };
+    readonly ChatChannel: {
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly createdBy: CodecTypes['pg/uuid@1']['input'];
+      readonly description: CodecTypes['pg/text@1']['input'] | null;
+      readonly id: CodecTypes['pg/uuid@1']['input'];
+      readonly isDefault: CodecTypes['pg/bool@1']['input'];
+      readonly name: CodecTypes['pg/text@1']['input'];
+      readonly type: 'PUBLIC' | 'PRIVATE';
+      readonly workspaceId: CodecTypes['pg/uuid@1']['input'];
+    };
+    readonly JoinRequest: {
+      readonly channelId: CodecTypes['pg/uuid@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly id: CodecTypes['pg/uuid@1']['input'];
+      readonly responseAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly responseBy: CodecTypes['pg/uuid@1']['input'] | null;
+      readonly senderId: CodecTypes['pg/uuid@1']['input'];
+      readonly status: 'PENDING' | 'APPROVED' | 'DECLINED';
+    };
+    readonly Message: {
+      readonly channelId: CodecTypes['pg/uuid@1']['input'];
+      readonly content: CodecTypes['pg/text@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly editedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly id: CodecTypes['pg/uuid@1']['input'];
+      readonly senderId: CodecTypes['pg/uuid@1']['input'] | null;
+    };
     readonly Task: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly createdBy: CodecTypes['pg/uuid@1']['input'];
@@ -416,6 +486,41 @@ export type FieldInputTypes = {
 };
 export type StorageColumnTypes = {
   readonly public: {
+    readonly ChannelMember: {
+      readonly channelId: CodecTypes['pg/uuid@1']['output'];
+      readonly joinedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly memberId: CodecTypes['pg/uuid@1']['output'];
+      readonly role: 'OWNER' | 'MEMBER';
+      readonly workspaceId: CodecTypes['pg/uuid@1']['output'];
+    };
+    readonly ChatChannel: {
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly createdBy: CodecTypes['pg/uuid@1']['output'];
+      readonly description: CodecTypes['pg/text@1']['output'] | null;
+      readonly id: CodecTypes['pg/uuid@1']['output'];
+      readonly isDefault: CodecTypes['pg/bool@1']['output'];
+      readonly name: CodecTypes['pg/text@1']['output'];
+      readonly type: 'PUBLIC' | 'PRIVATE';
+      readonly workspaceId: CodecTypes['pg/uuid@1']['output'];
+    };
+    readonly JoinRequest: {
+      readonly channelId: CodecTypes['pg/uuid@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly id: CodecTypes['pg/uuid@1']['output'];
+      readonly responseAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly responseBy: CodecTypes['pg/uuid@1']['output'] | null;
+      readonly senderId: CodecTypes['pg/uuid@1']['output'];
+      readonly status: 'PENDING' | 'APPROVED' | 'DECLINED';
+    };
+    readonly Message: {
+      readonly channelId: CodecTypes['pg/uuid@1']['output'];
+      readonly content: CodecTypes['pg/text@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly editedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly id: CodecTypes['pg/uuid@1']['output'];
+      readonly senderId: CodecTypes['pg/uuid@1']['output'] | null;
+    };
     readonly Task: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly createdBy: CodecTypes['pg/uuid@1']['output'];
@@ -507,6 +612,41 @@ export type StorageColumnTypes = {
 };
 export type StorageColumnInputTypes = {
   readonly public: {
+    readonly ChannelMember: {
+      readonly channelId: CodecTypes['pg/uuid@1']['input'];
+      readonly joinedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly memberId: CodecTypes['pg/uuid@1']['input'];
+      readonly role: 'OWNER' | 'MEMBER';
+      readonly workspaceId: CodecTypes['pg/uuid@1']['input'];
+    };
+    readonly ChatChannel: {
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly createdBy: CodecTypes['pg/uuid@1']['input'];
+      readonly description: CodecTypes['pg/text@1']['input'] | null;
+      readonly id: CodecTypes['pg/uuid@1']['input'];
+      readonly isDefault: CodecTypes['pg/bool@1']['input'];
+      readonly name: CodecTypes['pg/text@1']['input'];
+      readonly type: 'PUBLIC' | 'PRIVATE';
+      readonly workspaceId: CodecTypes['pg/uuid@1']['input'];
+    };
+    readonly JoinRequest: {
+      readonly channelId: CodecTypes['pg/uuid@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly id: CodecTypes['pg/uuid@1']['input'];
+      readonly responseAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly responseBy: CodecTypes['pg/uuid@1']['input'] | null;
+      readonly senderId: CodecTypes['pg/uuid@1']['input'];
+      readonly status: 'PENDING' | 'APPROVED' | 'DECLINED';
+    };
+    readonly Message: {
+      readonly channelId: CodecTypes['pg/uuid@1']['input'];
+      readonly content: CodecTypes['pg/text@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly deletedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly editedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly id: CodecTypes['pg/uuid@1']['input'];
+      readonly senderId: CodecTypes['pg/uuid@1']['input'] | null;
+    };
     readonly Task: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly createdBy: CodecTypes['pg/uuid@1']['input'];
@@ -598,6 +738,57 @@ export type StorageColumnInputTypes = {
 };
 
 export namespace Models {
+  export type public_ChannelMember = {
+    channelId: CodecTypes['pg/uuid@1']['output'];
+    joinedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    memberId: CodecTypes['pg/uuid@1']['output'];
+    role: 'OWNER' | 'MEMBER';
+    workspaceId: CodecTypes['pg/uuid@1']['output'];
+    channel: public_ChatChannel;
+    membership: public_WorkspaceMember;
+    readonly [RelationKeys]?: 'channel' | 'membership';
+  };
+  export type public_ChatChannel = {
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    createdBy: CodecTypes['pg/uuid@1']['output'];
+    description: CodecTypes['pg/text@1']['output'] | null;
+    id: CodecTypes['pg/uuid@1']['output'];
+    isDefault: CodecTypes['pg/bool@1']['output'];
+    name: CodecTypes['pg/text@1']['output'];
+    type: 'PUBLIC' | 'PRIVATE';
+    workspaceId: CodecTypes['pg/uuid@1']['output'];
+    creator: public_User;
+    joinRequests: public_JoinRequest[];
+    members: public_ChannelMember[];
+    messages: public_Message[];
+    workspace: public_Workspace;
+    readonly [RelationKeys]?: 'creator' | 'joinRequests' | 'members' | 'messages' | 'workspace';
+  };
+  export type public_JoinRequest = {
+    channelId: CodecTypes['pg/uuid@1']['output'];
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    id: CodecTypes['pg/uuid@1']['output'];
+    responseAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+    responseBy: CodecTypes['pg/uuid@1']['output'] | null;
+    senderId: CodecTypes['pg/uuid@1']['output'];
+    status: 'PENDING' | 'APPROVED' | 'DECLINED';
+    channel: public_ChatChannel;
+    responder: public_User | null;
+    sender: public_User;
+    readonly [RelationKeys]?: 'channel' | 'responder' | 'sender';
+  };
+  export type public_Message = {
+    channelId: CodecTypes['pg/uuid@1']['output'];
+    content: CodecTypes['pg/text@1']['output'];
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    deletedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+    editedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+    id: CodecTypes['pg/uuid@1']['output'];
+    senderId: CodecTypes['pg/uuid@1']['output'] | null;
+    channel: public_ChatChannel;
+    sender: public_User | null;
+    readonly [RelationKeys]?: 'channel' | 'sender';
+  };
   export type public_Task = {
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     createdBy: CodecTypes['pg/uuid@1']['output'];
@@ -672,15 +863,23 @@ export namespace Models {
     passwordHash: CodecTypes['pg/text@1']['output'];
     title: CodecTypes['pg/text@1']['output'] | null;
     activities: public_TaskActivity[];
+    chatChannels: public_ChatChannel[];
     invitationsSent: public_WorkspaceInvitation[];
+    joinRequests: public_JoinRequest[];
     memberships: public_WorkspaceMember[];
+    messages: public_Message[];
+    responsesHandled: public_JoinRequest[];
     taskComments: public_TaskComment[];
     tasksCreated: public_Task[];
     workspacesCreated: public_Workspace[];
     readonly [RelationKeys]?:
       | 'activities'
+      | 'chatChannels'
       | 'invitationsSent'
+      | 'joinRequests'
       | 'memberships'
+      | 'messages'
+      | 'responsesHandled'
       | 'taskComments'
       | 'tasksCreated'
       | 'workspacesCreated';
@@ -692,11 +891,14 @@ export namespace Models {
     id: CodecTypes['pg/uuid@1']['output'];
     name: CodecTypes['pg/text@1']['output'];
     slug: CodecTypes['pg/text@1']['output'];
+    chatChannels: public_ChatChannel[];
     creator: public_User;
     invitations: public_WorkspaceInvitation[];
     members: public_WorkspaceMember[];
+    taskActivities: public_TaskActivity[];
     tasks: public_Task[];
-    readonly [RelationKeys]?: 'creator' | 'invitations' | 'members' | 'tasks';
+    readonly [RelationKeys]?:
+      'chatChannels' | 'creator' | 'invitations' | 'members' | 'taskActivities' | 'tasks';
   };
   export type public_WorkspaceInvitation = {
     acceptedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
@@ -721,15 +923,20 @@ export namespace Models {
     role: 'ADMIN' | 'MEMBER';
     userId: CodecTypes['pg/uuid@1']['output'];
     workspaceId: CodecTypes['pg/uuid@1']['output'];
+    channelMemberships: public_ChannelMember[];
     taskAssignments: public_TaskAssignee[];
     user: public_User;
     workspace: public_Workspace;
-    readonly [RelationKeys]?: 'taskAssignments' | 'user' | 'workspace';
+    readonly [RelationKeys]?: 'channelMemberships' | 'taskAssignments' | 'user' | 'workspace';
   };
 }
 
 export declare const models: {
   public: {
+    ChannelMember: Models.public_ChannelMember;
+    ChatChannel: Models.public_ChatChannel;
+    JoinRequest: Models.public_JoinRequest;
+    Message: Models.public_Message;
     Task: Models.public_Task;
     TaskActivity: Models.public_TaskActivity;
     TaskAssignee: Models.public_TaskAssignee;
@@ -759,6 +966,436 @@ type ContractBase = Omit<
         readonly kind: 'postgres-schema';
         readonly entries: {
           readonly table: {
+            readonly ChannelMember: {
+              columns: {
+                readonly channelId: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly joinedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 6 };
+                  readonly many: false;
+                };
+                readonly memberId: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly role: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'MEMBER'>;
+                  };
+                  readonly many: false;
+                };
+                readonly workspaceId: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['channelId', 'memberId'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'ChannelMember_channelId_idx_166d3598';
+                  readonly prefix: 'ChannelMember_channelId_idx';
+                  readonly columns: readonly ['channelId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'ChannelMember_memberId_idx_76b3c263';
+                  readonly prefix: 'ChannelMember_memberId_idx';
+                  readonly columns: readonly ['memberId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'ChannelMember_workspaceId_memberId_idx_1f4f03c4';
+                  readonly prefix: 'ChannelMember_workspaceId_memberId_idx';
+                  readonly columns: readonly ['workspaceId', 'memberId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'ChannelMember';
+                    readonly columns: readonly ['channelId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'ChatChannel';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'ChannelMember';
+                    readonly columns: readonly ['workspaceId', 'memberId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'WorkspaceMember';
+                    readonly columns: readonly ['workspaceId', 'userId'];
+                  };
+                },
+              ];
+            };
+            readonly ChatChannel: {
+              columns: {
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 6 };
+                  readonly many: false;
+                };
+                readonly createdBy: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly description: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly isDefault: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly name: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly type: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'PUBLIC'>;
+                  };
+                  readonly many: false;
+                };
+                readonly workspaceId: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [
+                { readonly columns: readonly ['workspaceId', 'name'] },
+                { readonly columns: readonly ['id', 'workspaceId'] },
+              ];
+              indexes: readonly [
+                {
+                  readonly name: 'ChatChannel_createdBy_idx_ba0f792f';
+                  readonly prefix: 'ChatChannel_createdBy_idx';
+                  readonly columns: readonly ['createdBy'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'ChatChannel_workspaceId_createdAt_idx_5ff7e893';
+                  readonly prefix: 'ChatChannel_workspaceId_createdAt_idx';
+                  readonly columns: readonly ['workspaceId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'ChatChannel_workspaceId_idx_ba65f874';
+                  readonly prefix: 'ChatChannel_workspaceId_idx';
+                  readonly columns: readonly ['workspaceId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'ChatChannel';
+                    readonly columns: readonly ['workspaceId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Workspace';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'ChatChannel';
+                    readonly columns: readonly ['createdBy'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'User';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly JoinRequest: {
+              columns: {
+                readonly channelId: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 6 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly responseAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 6 };
+                  readonly many: false;
+                };
+                readonly responseBy: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly senderId: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly status: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'PENDING'>;
+                  };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'JoinRequest_channelId_idx_166d3598';
+                  readonly prefix: 'JoinRequest_channelId_idx';
+                  readonly columns: readonly ['channelId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'JoinRequest_channelId_status_createdAt_idx_8ee7fb9a';
+                  readonly prefix: 'JoinRequest_channelId_status_createdAt_idx';
+                  readonly columns: readonly ['channelId', 'status', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'JoinRequest_responseBy_idx_88dc1ef8';
+                  readonly prefix: 'JoinRequest_responseBy_idx';
+                  readonly columns: readonly ['responseBy'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'JoinRequest_senderId_createdAt_idx_ed252b01';
+                  readonly prefix: 'JoinRequest_senderId_createdAt_idx';
+                  readonly columns: readonly ['senderId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'JoinRequest_senderId_idx_4689c490';
+                  readonly prefix: 'JoinRequest_senderId_idx';
+                  readonly columns: readonly ['senderId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'JoinRequest';
+                    readonly columns: readonly ['channelId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'ChatChannel';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'JoinRequest';
+                    readonly columns: readonly ['senderId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'User';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'JoinRequest';
+                    readonly columns: readonly ['responseBy'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'User';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly Message: {
+              columns: {
+                readonly channelId: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly content: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 6 };
+                  readonly many: false;
+                };
+                readonly deletedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 6 };
+                  readonly many: false;
+                };
+                readonly editedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 6 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly senderId: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'Message_channelId_createdAt_id_idx_bd37c14e';
+                  readonly prefix: 'Message_channelId_createdAt_id_idx';
+                  readonly columns: readonly ['channelId', 'createdAt', 'id'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Message_channelId_idx_166d3598';
+                  readonly prefix: 'Message_channelId_idx';
+                  readonly columns: readonly ['channelId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Message_senderId_createdAt_idx_ed252b01';
+                  readonly prefix: 'Message_senderId_createdAt_idx';
+                  readonly columns: readonly ['senderId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Message_senderId_idx_4689c490';
+                  readonly prefix: 'Message_senderId_idx';
+                  readonly columns: readonly ['senderId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Message';
+                    readonly columns: readonly ['channelId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'ChatChannel';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Message';
+                    readonly columns: readonly ['senderId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'User';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly Task: {
               columns: {
                 readonly createdAt: {
@@ -1549,9 +2186,21 @@ type ContractBase = Omit<
                 'TASK_DELETED',
               ];
             };
+            readonly ChannelRole: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['OWNER', 'MEMBER'];
+            };
+            readonly ChannelType: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['PUBLIC', 'PRIVATE'];
+            };
             readonly InvitationStatus: {
               readonly kind: 'valueSet';
               readonly values: readonly ['PENDING', 'ACCEPTED', 'DECLINED', 'EXPIRED', 'REVOKED'];
+            };
+            readonly RequestStatus: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['PENDING', 'APPROVED', 'DECLINED'];
             };
             readonly TaskPriority: {
               readonly kind: 'valueSet';
@@ -1576,6 +2225,19 @@ type ContractBase = Omit<
   readonly target: 'postgres';
   readonly targetFamily: 'sql';
   readonly roots: {
+    readonly ChannelMember: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'ChannelMember';
+    };
+    readonly ChatChannel: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'ChatChannel';
+    };
+    readonly JoinRequest: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'JoinRequest';
+    };
+    readonly Message: { readonly namespace: 'public' & NamespaceId; readonly model: 'Message' };
     readonly Task: { readonly namespace: 'public' & NamespaceId; readonly model: 'Task' };
     readonly TaskActivity: {
       readonly namespace: 'public' & NamespaceId;
@@ -1604,6 +2266,346 @@ type ContractBase = Omit<
     readonly namespaces: {
       readonly public: {
         readonly models: {
+          readonly ChannelMember: {
+            readonly fields: {
+              readonly channelId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly joinedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly typeParams: { readonly precision: 6 };
+                };
+              };
+              readonly memberId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly role: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly workspaceId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+            };
+            readonly relations: {
+              readonly channel: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'ChatChannel';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['channelId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly membership: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'WorkspaceMember';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['workspaceId', 'memberId'];
+                  readonly targetFields: readonly ['workspaceId', 'userId'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'ChannelMember';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly channelId: { readonly column: 'channelId' };
+                readonly joinedAt: { readonly column: 'joinedAt' };
+                readonly memberId: { readonly column: 'memberId' };
+                readonly role: { readonly column: 'role' };
+                readonly workspaceId: { readonly column: 'workspaceId' };
+              };
+            };
+          };
+          readonly ChatChannel: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly typeParams: { readonly precision: 6 };
+                };
+              };
+              readonly createdBy: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly description: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly isDefault: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly name: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly type: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly workspaceId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+            };
+            readonly relations: {
+              readonly creator: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['createdBy'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly joinRequests: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'JoinRequest';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['channelId'];
+                };
+              };
+              readonly members: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'ChannelMember';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['channelId'];
+                };
+              };
+              readonly messages: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Message';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['channelId'];
+                };
+              };
+              readonly workspace: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Workspace';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['workspaceId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'ChatChannel';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly createdBy: { readonly column: 'createdBy' };
+                readonly description: { readonly column: 'description' };
+                readonly id: { readonly column: 'id' };
+                readonly isDefault: { readonly column: 'isDefault' };
+                readonly name: { readonly column: 'name' };
+                readonly type: { readonly column: 'type' };
+                readonly workspaceId: { readonly column: 'workspaceId' };
+              };
+            };
+          };
+          readonly JoinRequest: {
+            readonly fields: {
+              readonly channelId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly typeParams: { readonly precision: 6 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly responseAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly typeParams: { readonly precision: 6 };
+                };
+              };
+              readonly responseBy: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly senderId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly channel: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'ChatChannel';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['channelId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly responder: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['responseBy'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly sender: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['senderId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'JoinRequest';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly channelId: { readonly column: 'channelId' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly id: { readonly column: 'id' };
+                readonly responseAt: { readonly column: 'responseAt' };
+                readonly responseBy: { readonly column: 'responseBy' };
+                readonly senderId: { readonly column: 'senderId' };
+                readonly status: { readonly column: 'status' };
+              };
+            };
+          };
+          readonly Message: {
+            readonly fields: {
+              readonly channelId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly content: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly typeParams: { readonly precision: 6 };
+                };
+              };
+              readonly deletedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly typeParams: { readonly precision: 6 };
+                };
+              };
+              readonly editedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly typeParams: { readonly precision: 6 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly senderId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+            };
+            readonly relations: {
+              readonly channel: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'ChatChannel';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['channelId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly sender: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['senderId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'Message';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly channelId: { readonly column: 'channelId' };
+                readonly content: { readonly column: 'content' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly deletedAt: { readonly column: 'deletedAt' };
+                readonly editedAt: { readonly column: 'editedAt' };
+                readonly id: { readonly column: 'id' };
+                readonly senderId: { readonly column: 'senderId' };
+              };
+            };
+          };
           readonly Task: {
             readonly fields: {
               readonly createdAt: {
@@ -1990,6 +2992,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['actorId'];
                 };
               };
+              readonly chatChannels: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'ChatChannel';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['createdBy'];
+                };
+              };
               readonly invitationsSent: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2001,6 +3014,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['invitedBy'];
                 };
               };
+              readonly joinRequests: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'JoinRequest';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['senderId'];
+                };
+              };
               readonly memberships: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2010,6 +3034,28 @@ type ContractBase = Omit<
                 readonly on: {
                   readonly localFields: readonly ['id'];
                   readonly targetFields: readonly ['userId'];
+                };
+              };
+              readonly messages: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Message';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['senderId'];
+                };
+              };
+              readonly responsesHandled: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'JoinRequest';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['responseBy'];
                 };
               };
               readonly taskComments: {
@@ -2090,6 +3136,17 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly chatChannels: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'ChatChannel';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['workspaceId'];
+                };
+              };
               readonly creator: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
                 readonly cardinality: 'N:1';
@@ -2114,6 +3171,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'WorkspaceMember';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['workspaceId'];
+                };
+              };
+              readonly taskActivities: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'TaskActivity';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -2284,6 +3352,17 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly channelMemberships: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'ChannelMember';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['workspaceId', 'userId'];
+                  readonly targetFields: readonly ['workspaceId', 'memberId'];
+                };
+              };
               readonly taskAssignments: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2348,6 +3427,20 @@ type ContractBase = Omit<
               { readonly name: 'TASK_DELETED'; readonly value: 'TASK_DELETED' },
             ];
           };
+          readonly ChannelRole: {
+            readonly codecId: 'pg/text@1';
+            readonly members: readonly [
+              { readonly name: 'OWNER'; readonly value: 'OWNER' },
+              { readonly name: 'MEMBER'; readonly value: 'MEMBER' },
+            ];
+          };
+          readonly ChannelType: {
+            readonly codecId: 'pg/text@1';
+            readonly members: readonly [
+              { readonly name: 'PUBLIC'; readonly value: 'PUBLIC' },
+              { readonly name: 'PRIVATE'; readonly value: 'PRIVATE' },
+            ];
+          };
           readonly InvitationStatus: {
             readonly codecId: 'pg/text@1';
             readonly members: readonly [
@@ -2356,6 +3449,14 @@ type ContractBase = Omit<
               { readonly name: 'DECLINED'; readonly value: 'DECLINED' },
               { readonly name: 'EXPIRED'; readonly value: 'EXPIRED' },
               { readonly name: 'REVOKED'; readonly value: 'REVOKED' },
+            ];
+          };
+          readonly RequestStatus: {
+            readonly codecId: 'pg/text@1';
+            readonly members: readonly [
+              { readonly name: 'PENDING'; readonly value: 'PENDING' },
+              { readonly name: 'APPROVED'; readonly value: 'APPROVED' },
+              { readonly name: 'DECLINED'; readonly value: 'DECLINED' },
             ];
           };
           readonly TaskPriority: {
@@ -2399,12 +3500,25 @@ type ContractBase = Omit<
             { readonly name: 'TASK_COMMENTED'; readonly value: 'TASK_COMMENTED' },
             { readonly name: 'TASK_DELETED'; readonly value: 'TASK_DELETED' },
           ];
+          readonly ChannelRole: readonly [
+            { readonly name: 'OWNER'; readonly value: 'OWNER' },
+            { readonly name: 'MEMBER'; readonly value: 'MEMBER' },
+          ];
+          readonly ChannelType: readonly [
+            { readonly name: 'PUBLIC'; readonly value: 'PUBLIC' },
+            { readonly name: 'PRIVATE'; readonly value: 'PRIVATE' },
+          ];
           readonly InvitationStatus: readonly [
             { readonly name: 'PENDING'; readonly value: 'PENDING' },
             { readonly name: 'ACCEPTED'; readonly value: 'ACCEPTED' },
             { readonly name: 'DECLINED'; readonly value: 'DECLINED' },
             { readonly name: 'EXPIRED'; readonly value: 'EXPIRED' },
             { readonly name: 'REVOKED'; readonly value: 'REVOKED' },
+          ];
+          readonly RequestStatus: readonly [
+            { readonly name: 'PENDING'; readonly value: 'PENDING' },
+            { readonly name: 'APPROVED'; readonly value: 'APPROVED' },
+            { readonly name: 'DECLINED'; readonly value: 'DECLINED' },
           ];
           readonly TaskPriority: readonly [
             { readonly name: 'LOW'; readonly value: 'LOW' },
@@ -2458,6 +3572,30 @@ type ContractBase = Omit<
     readonly executionHash: ExecutionHash;
     readonly mutations: {
       readonly defaults: readonly [
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'ChatChannel';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'JoinRequest';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Message';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
         {
           readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
           readonly ref: {

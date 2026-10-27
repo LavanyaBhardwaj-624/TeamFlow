@@ -1,7 +1,8 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { type NextFunction, type Request, type Response } from 'express';
 import { db } from '../../prisma/db.ts';
-
+import { emitWorkspaceEvent } from '../../realtime/socket.ts';
+import { Temporal } from "@js-temporal/polyfill";
 
 
 const invitationExpiryDays = 7;
@@ -25,7 +26,7 @@ const currentUser = async (req: Request) => db.orm.public.User.where({
 export const sendWorkspaceInvitation = async (req: Request<{ workspaceId: string }>, res: Response, next: NextFunction): Promise<void> => {
   try {
     const actor = await currentUser(req);
-
+     if (!actor) return fail(res, 401, 'Authentication required');
     const { workspaceId } = req.params;
 
     const requestedUserId = typeof req.body?.userId === 'string' ? req.body.userId.trim() : '';
@@ -33,7 +34,7 @@ export const sendWorkspaceInvitation = async (req: Request<{ workspaceId: string
     // const requestedEmail = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
     const role = req.body?.role === 'ADMIN' ? 'ADMIN' : 'MEMBER';
 
-    if (!actor) return fail(res, 401, 'Authentication required');
+   
 
     if (!workspaceId || (!requestedUserId)) {
       return fail(res, 400, 'Workspace ID and recipient user ID are required');
@@ -63,7 +64,8 @@ export const sendWorkspaceInvitation = async (req: Request<{ workspaceId: string
        return fail(res, 409, 'An invitation , for same user, is already pending');
 
     const rawToken = randomBytes(32).toString('hex');
-   await db.transaction(async (tx) => {
+
+   const result = await db.transaction(async (tx) => {
 
     const invitation = await tx.orm.public.WorkspaceInvitation.create({
       workspaceId,
@@ -71,36 +73,39 @@ export const sendWorkspaceInvitation = async (req: Request<{ workspaceId: string
       email,
       role,
       tokenHash: hashToken(rawToken),
-      expiresAt: new Date(Date.now() + invitationExpiryDays * 24 * 60 * 60 * 1000),
+      expiresAt: Temporal.Instant.from(new Date(Date.now() + invitationExpiryDays * 24 * 60 * 60 * 1000).toISOString()),
     });
-    await tx.orm.public.TaskActivity.create({ 
+     const taskActivity =  await tx.orm.public.TaskActivity.create({ 
       workspaceId, 
       actorId: actor.id, type: 'INVITATION_SENT', 
       description: `Invited ${recipient.name || recipient.email} to ${workspace.name}`
      });
 
-    
+       return {
+        invitation,
+        taskActivity
+       }
     // res.status(201).json({ success: true, data: { ...invitation, token: rawToken }, message: 'Invitation sent successfully' });
-    
-    return res.status(201).json({
+      });
+
+      res.status(201).json({
       success: true,
       status: 201,
       message: `Invitation sent successfully to ${recipient.name || recipient.email}.
                 The invitation will expire in 7 days. `,
-      data: {
-        ...invitation,
-        
-      },
-    });
+      data: result,
+      });
+      emitWorkspaceEvent(workspaceId, 'activity:created', result.taskActivity);
 
-  });
+      return;
+  
 
   } catch (error) {
      console.error(error);
 
      return fail( res, 500, 'Internal Server Error');
     }
-    return;
+    
 };
 
 
@@ -116,10 +121,13 @@ export const listMyWorkspaceInvitations = async (req: Request, res: Response, ne
           const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
 
           const offset = (page - 1)*limit;
-          const total_invites = await db.orm.public.WorkspaceInvitation.where({
+          const invites = await db.orm.public.WorkspaceInvitation.where({
                email: actor.email, 
                status: 'PENDING'
-             }).count();
+             }).aggregate((a) => ({
+              total: a.count()
+             }));
+             const total_invites = invites.total
           const invitations = await db.orm.public.WorkspaceInvitation
             .where({
               email: actor.email,
@@ -175,81 +183,87 @@ export const listMyWorkspaceInvitations = async (req: Request, res: Response, ne
 
 
 
-export const respondToWorkspaceInvitation = async (req: Request<{ invitationId: string }>, res: Response, next: NextFunction): Promise<void> => {
+export const respondToWorkspaceInvitation = async (
+  req: Request<{ invitationId: string }>,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const actor = await currentUser(req);
-
     if (!actor) return fail(res, 401, 'Authentication required');
 
-    if( !req.body.response ) return fail(res , 400, 'Invitation response is required')
-
-    const validResponses = ['ACCEPTED', 'DECLINED'];
-
-    if (!validResponses.includes(req.body.response))
-   return fail(res, 400, 'Invalid invitation action');
-
     const response = req.body?.response;
+    if (!['ACCEPTED', 'DECLINED'].includes(response)) {
+      return fail(res, 400, 'Invalid invitation action');
+    }
 
-    const invitation = req.params.invitationId ? await db.orm.public.WorkspaceInvitation.where({ id: req.params.invitationId, email: actor.email, status: 'PENDING' }).first() : null;
+    const invitation = await db.orm.public.WorkspaceInvitation
+      .where({ id: req.params.invitationId, email: actor.email, status: 'PENDING' })
+      .first();
 
-    if (!response || !invitation) return fail(res, 404, 'Invitation is no longer available');
+    if (!invitation) return fail(res, 404, 'Invitation is no longer available');
 
-    if (new Date(invitation.expiresAt).getTime() < Date.now()) return fail(res, 410, 'Invitation has expired');
+    if (Temporal.Instant.compare(invitation.expiresAt, Temporal.Now.instant()) < 0) {
+      return fail(res, 410, 'Invitation has expired');
+    }
 
-   await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
+      let member = null;
+      let activity;
 
-  if (response === 'ACCEPTED') {
+      if (response === 'ACCEPTED') {
+        member = await tx.orm.public.WorkspaceMember.create({
+          workspaceId: invitation.workspaceId,
+          userId: actor.id,
+          role: invitation.role,
+        });
+        activity = await tx.orm.public.TaskActivity.create({
+          workspaceId: invitation.workspaceId,
+          actorId: actor.id,
+          type: 'MEMBER_JOINED',
+          description: `${actor.email} joined the workspace`,
+        });
+      } else {
+        activity = await tx.orm.public.TaskActivity.create({
+          workspaceId: invitation.workspaceId,
+          actorId: actor.id,
+          type: 'INVITATION_DECLINED',
+          description: `${actor.email} declined the invitation`,
+        });
+      }
 
-    await tx.orm.public.WorkspaceMember.create({
-      workspaceId: invitation.workspaceId,
-      userId: actor.id,
-      role: invitation.role,
+      await tx.orm.public.WorkspaceInvitation
+        .where({ id: invitation.id })
+        .update({
+          status: response,
+          ...(response === 'ACCEPTED'
+            ? { acceptedAt: Temporal.Now.instant() }
+            : { declinedAt: Temporal.Now.instant() }),
+        });
+
+      return { member, activity };
     });
 
-    await tx.orm.public.TaskActivity.create({
-      workspaceId: invitation.workspaceId,
-      actorId: actor.id,
-      type: 'MEMBER_JOINED',
-      description: `${actor.email} joined the workspace`,
-    });
-  }else{
-    await tx.orm.public.TaskActivity.create({
-       workspaceId: invitation.workspaceId,
-        actorId: actor.id,
-         type: 'INVITATION_DECLINED', 
-         description: `${actor.email} declined the invitation`
-    });
- 
-  }
+    if (result.member) {
+      emitWorkspaceEvent(invitation.workspaceId, 'member:joined', result.member);
+    }
+    emitWorkspaceEvent(invitation.workspaceId, 'activity:created', result.activity);
 
-  await tx.orm.public.WorkspaceInvitation
-    .where({ id: invitation.id })
-    .update({
-      status: response,
-      ...(response === 'ACCEPTED'
-        ? { acceptedAt: new Date() }
-        : { declinedAt: new Date() }),
-    });
-
-});
     res.status(200).json({
       success: true,
       status: 200,
-      message: ` Invitation successfully ${response.toLowerCase()} .`,
-      data: {
-        ...invitation,
+      message: `Invitation successfully ${response.toLowerCase()}.`,
+      data: result,
+    });
+  } catch (error) {
+    console.error('Respond to invitation err ->', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'SERVER_ERR',
+        message: "Response couldn't be sent due to internal server error",
+        status: 500,
       },
-      });
-  } catch (error) { 
-          res.status(500).json({
-            success: false , 
-            error:{
-            code: "SERVER_ERR",
-            message: "Invitation could not be sent due to an internal server error",
-            status: 500,
-            }
-        });
-   }
+    });
+  }
 };
-
-

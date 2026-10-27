@@ -15,6 +15,8 @@ export const signupSchema = z.object({
     .min(8, 'Password must be at least 8 characters')
     .regex(/[A-Z]/, 'Password must include at least one uppercase letter')
     .regex(/[0-9]/, 'Password must include at least one number'),
+  title: z.string().min(2, 'Job title is required').max(100),
+  description: z.string().min(2, 'Please describe your skills').max(1000),
 });
 
 export type SignupFormValues = z.infer<typeof signupSchema>;

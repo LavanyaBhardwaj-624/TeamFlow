@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/Button';
 import { loginSchema, LoginFormValues } from '@/modules/auth/schemas';
 import { useAuthStore } from '@/modules/auth/useAuthStore';
 import { ROUTES } from '@/config/routes';
-import { mockUsers } from '@/config/mockData';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -154,27 +153,6 @@ export const LoginPage: React.FC = () => {
             </Button>
           </form>
 
-          {/* Quick Demo Persona Fill */}
-          <div className="mt-8 rounded-lg border border-line bg-surface-secondary/50 p-3">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-ink-subtle mb-2">
-              Quick Mock Login (Demo Presets):
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {mockUsers.slice(0, 3).map((u) => (
-                <button
-                  key={u.id}
-                  type="button"
-                  onClick={() => {
-                    setValue('email', u.email);
-                    setValue('password', 'Password123!');
-                  }}
-                  className="rounded border border-line bg-surface px-2 py-1 text-[11px] text-ink hover:border-brand transition-colors"
-                >
-                  {u.name} ({u.title?.split(' ')[0]})
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         <div className="text-center text-xs text-ink-muted">
