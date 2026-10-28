@@ -16,6 +16,12 @@ interface AuthState {
   logout: () => Promise<void>;
 }
 
+// React Strict Mode intentionally runs effects twice in development. Keep the
+// initial refresh request single-flight because refresh-token rotation makes
+// two concurrent requests unsafe: the second request would see the old token
+// and invalidate the session created by the first one.
+let initializePromise: Promise<void> | null = null;
+
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   token: null,
@@ -32,21 +38,34 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user, token, isAuthenticated: Boolean(user && token) }),
 
   initializeAuth: async () => {
-    try {
-      const res = await authService.getCurrentSession();
-      if (res.data) {
-        set({
-          user: res.data.user,
-          token: res.data.token,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-        return;
-      }
-    } catch {
-      // Ignore session restore error
+    if (initializePromise) {
+      return initializePromise;
     }
-    set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+
+    initializePromise = (async () => {
+      try {
+        const res = await authService.getCurrentSession();
+        if (res.data) {
+          set({
+            user: res.data.user,
+            token: res.data.token,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+          return;
+        }
+      } catch {
+        // Ignore session restore errors; the user can sign in normally.
+      }
+
+      set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+    })();
+
+    try {
+      await initializePromise;
+    } finally {
+      initializePromise = null;
+    }
   },
 
   login: async (credentials: LoginCredentials) => {
