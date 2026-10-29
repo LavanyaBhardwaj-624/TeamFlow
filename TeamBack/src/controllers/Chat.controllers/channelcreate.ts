@@ -1,6 +1,7 @@
 
 import {type Request , type Response , type NextFunction} from "express"
-import { db } from "../../prisma/db"
+import { db } from "../../prisma/db.ts"
+import { emitWorkspaceEvent } from "../../realtime/socket.ts"
 
 
 
@@ -95,6 +96,9 @@ const creatchannel = async function ( req: Request<{workspaceId: string}> , res:
 
         return channel
     })
+    emitWorkspaceEvent(workspaceId, "channel:created", {
+      id: result.id, name: result.name, type: result.type, description: result.description,
+    });
 
     res.status(201).json({
         success: true,    

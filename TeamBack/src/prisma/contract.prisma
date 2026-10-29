@@ -238,6 +238,7 @@ model ChannelMember {
   // member  User        @relation( "UserChannelMembership", fields: [memberId], references: [id], onDelete: Cascade)
   membership WorkspaceMember @relation(fields: [workspaceId, memberId], references: [workspaceId, userId], onDelete: Cascade)
   
+  @@unique([channelId , memberId])
   @@id([channelId, memberId])
   @@index([memberId])
   @@index([workspaceId, memberId])

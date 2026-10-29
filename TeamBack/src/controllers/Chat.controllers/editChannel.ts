@@ -1,5 +1,5 @@
 import {type Request , type Response , type NextFunction} from "express"
-import { db } from "../../prisma/db"
+import { db } from "../../prisma/db.ts"
 
 async function Channelmember(channelId: string , userId : string) : Promise<any>{
 

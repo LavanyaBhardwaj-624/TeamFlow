@@ -13,7 +13,7 @@ const LogOut = async function(req : Request , res: Response): Promise<void> {
     if (userId && payload?.jti) await redis.del(`refresh:${userId}:${payload.jti}`)
    }
    
-  res.clearCookie('refreshToken')
+  res.clearCookie('refreshToken', { path: '/' })
   res.sendStatus(204)
   
 }

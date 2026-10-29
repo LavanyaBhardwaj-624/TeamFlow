@@ -1,6 +1,7 @@
 
 import {type Request , type Response , type NextFunction} from "express"
-import { db } from "../../prisma/db"
+import { db } from "../../prisma/db.ts"
+import { emitWorkspaceEvent, emitChannelEvent } from "../../realtime/socket.ts"
 
 
 
@@ -41,10 +42,15 @@ const DelelteChannel = async (req: Request<{channelId: string}>, res: Response) 
         if(!isMember || isMember.role !== "OWNER"){
             return ErrorRes(res , 401 , " UNAUTHORIZED" , "user is not authorized to delete channel");
         }
+        const channel = await db.orm.public.ChatChannel.where({ id: channelId }).first();
 
         const deleteChatChannel = await db.orm.public.ChatChannel.where({
             id: channelId
         }).delete()
+    if (channel) {
+      emitWorkspaceEvent(channel.workspaceId, "channel:deleted", { id: channel.id, name: channel.name, type: channel.type, description: channel.description });
+      emitChannelEvent(channel.id, "channel:deleted", { id: channel.id });
+    }
 
     res.status(200).json({
         success: true,
@@ -158,6 +164,7 @@ const memberleave = async (req: Request<{channelId: string}> , res: Response): P
             channelId : channelId,
             memberId  : userId
         }).delete();
+        emitChannelEvent(channelId, "member:left", { channelId, memberId: userId });
 
     res.status(200).json({
         success: true,

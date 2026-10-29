@@ -1,6 +1,7 @@
 import { type Response , type Request } from "express"
 import { db } from "../../prisma/db.ts"
 import { Temporal } from "@js-temporal/polyfill";
+import { emitChannelEvent, emitUserEvent } from "../../realtime/socket.ts";
 
 // for public channels directly join
 // dent request for public channels
@@ -77,6 +78,8 @@ const Joinpublic = async function(req: Request<{ channelId : string}> , res: Res
         memberId: userId,
         role: "MEMBER"
      })
+     emitChannelEvent(channelId, "member:joined", { channelId, memberId: userId });
+     emitUserEvent(userId, "member:added", { channelId });
 
      res.status(201).json({
         success: true,
@@ -148,6 +151,8 @@ const Joinprivate = async function( req: Request<{channelId: string}> , res: Res
         status: "PENDING",
         senderId: userId
       })
+      const owner = await db.orm.public.ChannelMember.where({ channelId: channel.id, role: "OWNER" }).first();
+      if (owner) emitUserEvent(owner.memberId, "join-request:new", { ...request, channelId: channel.id });
 
       res.status(201).json({
         succeess: true ,
@@ -233,6 +238,12 @@ const respondToJoin = async (req: Request<{requestId: string}> , res:Response): 
      return updateRequest;
     })
 
+    if (status === "APPROVED") {
+      emitChannelEvent(request.channelId, "member:joined", { channelId: request.channelId, memberId: request.senderId });
+      emitUserEvent(request.senderId, "member:added", { channelId: request.channelId });
+    }
+    emitUserEvent(request.senderId, "join-request:resolved", { requestId, status });
+
     res.status(200).json({
         success: true,
         status: 200,
@@ -309,6 +320,8 @@ const AddDirectly = async function( req: Request<{channelId: string}> , res: Res
            memberId: User2add,
            role: "MEMBER"
       })
+      emitChannelEvent(channelId, "member:joined", { channelId, memberId: User2add });
+      emitUserEvent(User2add, "member:added", { channelId });
 
       res.status(201).json({
         succeess: true ,

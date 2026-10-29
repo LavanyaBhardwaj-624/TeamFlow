@@ -50,10 +50,18 @@ export const rotateRefreshToken = async (token: string) => {
 }
 
 export const setRefreshCookie = (res: Response, token: string) => {
+  const isProduction = process.env.NODE_ENV === 'production'
+  const configuredSameSite = process.env.SSite?.trim().toLowerCase()
+  // SameSite=None requires Secure, and browsers reject that combination on
+  // plain http://localhost. Local frontend/backend development is same-site,
+  // so use Lax unless a production deployment explicitly needs cross-site
+  // cookies.
+  const sameSite = isProduction && configuredSameSite === 'none' ? 'none' : 'lax'
+
   res.cookie('refreshToken', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.SSite as 'lax' | 'strict' | 'none' | undefined,
+    secure: isProduction || sameSite === 'none',
+    sameSite,
     path: '/',
     maxAge: REFRESH_TTL_SEC * 1000,
   })

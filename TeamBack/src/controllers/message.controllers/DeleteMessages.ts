@@ -1,5 +1,6 @@
 import {type NextFunction, type Request , type Response} from 'express'
 import { db } from '../../prisma/db.ts';
+import { emitChannelEvent } from '../../realtime/socket.ts';
 
 const ErrorRes = function (res: Response , status: number, code: string , message: string) {
 
@@ -64,6 +65,7 @@ const DeleteMessage = async (req : Request<{channelId: string , messageId: strin
             id: messageId,
             channelId: channelId,
         }).delete();
+        emitChannelEvent(channelId, 'message:deleted', { id: messageId, channelId });
         res.status(201).json({
             success: true,
             status: 201,

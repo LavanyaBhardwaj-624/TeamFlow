@@ -223,6 +223,20 @@ export const respondToWorkspaceInvitation = async (
           type: 'MEMBER_JOINED',
           description: `${actor.email} joined the workspace`,
         });
+        const channel = await tx.orm.public.ChatChannel.where({
+          workspaceId: invitation.workspaceId,
+          name: "general".toLowerCase().trim(),
+          type: "PUBLIC",
+          isDefault: true,
+        }).first();
+        if(channel !== null || channel){
+        const chatmember = await tx.orm.public.ChannelMember.create({
+          memberId: actor.id,
+          workspaceId: invitation.workspaceId,
+          role: invitation.role === "MEMBER" ? "MEMBER" : "OWNER",
+          channelId: channel.id ,
+        })
+      }
       } else {
         activity = await tx.orm.public.TaskActivity.create({
           workspaceId: invitation.workspaceId,

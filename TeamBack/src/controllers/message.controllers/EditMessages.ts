@@ -1,5 +1,6 @@
 import {type NextFunction, type Request , type Response} from 'express'
 import { db } from '../../prisma/db.ts';
+import { emitChannelEvent } from '../../realtime/socket.ts';
 
 const ErrorRes = function (res: Response , status: number, code: string , message: string) {
 
@@ -70,6 +71,7 @@ const EditMessage = async (req : Request<{channelId: string , messageId: string}
         }).update({
             content: EditMessage,
         });
+        emitChannelEvent(channelId, 'message:edited', edit);
 
         res.status(201).json({
             success: true,

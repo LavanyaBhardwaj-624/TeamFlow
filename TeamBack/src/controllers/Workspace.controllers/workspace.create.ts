@@ -2,6 +2,7 @@
 import {type NextFunction, type Request , type Response} from 'express'
 import { db } from '../../prisma/db.ts';
 import { emitWorkspaceEvent } from '../../realtime/socket.ts';
+import getPendingUserId from './getPendingRequests.ts';
 
 
 const fail = (res: Response, status: number, message: string) => {
@@ -77,6 +78,21 @@ const createWorkspace = async (req: Request , res:Response , next: NextFunction 
       description: `${admin.name} created workspace "${workspace.name}"`,
     });
 
+    const channel = await tx.orm.public.ChatChannel.create({
+      workspaceId: workspace.id,
+      createdBy: ownerId,
+      name: "general".toLowerCase().trim(),
+      isDefault: true,
+      description: "This is general Channel of this workspace. Where member can interact with each other , Share Problems, Share ideas , Share solutions.",
+      type: "PUBLIC"
+    })
+    await tx.orm.public.ChannelMember.create({
+      workspaceId: workspace.id,
+      channelId: channel.id,
+      role : "OWNER",
+      memberId: ownerId
+    })
+    
        return {
          workspace,
          member,

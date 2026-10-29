@@ -1,6 +1,6 @@
 
 import {type Request , type Response , type NextFunction} from "express"
-import { db } from "../../prisma/db"
+import { db } from "../../prisma/db.ts"
 import { and } from "@prisma/orm-postgres/orm-client";
 
 
@@ -112,7 +112,7 @@ const GetMember = async (req: Request<{ channelId: string}> , res: Response) : P
         const memberList = await db.orm.public.ChannelMember.where({
           channelId: channelId,
         }).orderBy((i) => i.joinedAt.asc()).all()
-
+    
         
       res.status(200).json({
         succeess: true ,
@@ -162,8 +162,8 @@ const GetJoinRequest = async(req: Request , res: Response): Promise<void> => {
       workspaceName: c.workspace.name,
       workspaceSlug : c.workspace.slug,
       pendingRequests:{
-        ...c.joinRequests   // with sender
-      }
+        ...c.joinRequests   // with sender and it is an array as joinrequest for a channel can be many
+      },
     }
    })
 
